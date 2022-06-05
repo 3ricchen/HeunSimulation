@@ -2,21 +2,6 @@ import math
 import cmath
 import turtle
 
-import numpy as np
-
-
-# deltax = 0
-# d2y = 1
-# dy = 1
-# y = 1
-# a = 2
-# gamma = .5
-# delta = .5
-# epsilon = .5
-# alpha = 1.25
-# beta = 1.25
-# q = 1
-
 radius = .2
 time = 0
 speed = .0001
