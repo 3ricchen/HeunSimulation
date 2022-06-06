@@ -1,12 +1,12 @@
 import math
 import cmath
 import turtle
+import numpy as np
 
 radius = .2
 time = 0
-speed = .0001
+speed = .005
 deltax = complex(0,0)
-
 
 d2y = complex(0,0) # y''
 dy = complex(0,0) # y'
@@ -34,71 +34,53 @@ def update_Y():
     global y
     y += deltax*dy
 
-def update_x():
+def update_x(center):
     global x, deltax, time
     time += speed
     last_x = x
-    x = radius*cmath.exp(time*complex(0, math.pi * 2))
+    x = radius*cmath.exp(time*complex(0, math.pi * 2)) + center
     deltax = x - last_x
 
 
-def update():
-    update_x()
+def update(center):
+    update_x(center)
     update_d2Y()
     update_dY()
     update_Y()
 
 
-Ty = turtle.Turtle()
-screen = Ty.getscreen()
-screen.tracer(n = 2000)
-Ty.penup()
-Ty.goto(100*y.real, 100*y.imag)
-Ty.pendown()
 
 
-Tdy = turtle.Turtle()
-Tdy.pencolor("red")
-Tdy.penup()
-Tdy.goto(100*dy.real, 100*dy.imag)
-Tdy.pendown()
+def simulate(center):
+    dy = complex(0, 0)  # y'
+    y = complex(1, 0)
+    time = 0
+    while time < 1:
+        update(center)
+    a = y
+    b = dy
 
+    dy = complex(1, 0)  # y'
+    y = complex(0, 0)
+    time = 0
+    while time < 1:
+        update(center)
+    c = y
+    d = dy
+    return np.matrix([a,c],[b,d])
 
-Td2y = turtle.Turtle()
-Td2y.pencolor("green")
-Td2y.penup()
-Td2y.goto(5*d2y.real, 5*d2y.imag)
-Td2y.pendown()
-
-
-Tx = turtle.Turtle()
-Tx.pencolor("blue")
-Tx.penup()
-Tx.goto(100*x.real, 100*x.imag)
-Tx.pendown()
-
-
-Tx.speed(1000)
-Ty.speed(1000)
-Tdy.speed(1000)
-Td2y.speed(1000)
-
-print('Norm:')
-print((y)*(y.conjugate()) + (dy) * (dy.conjugate()))
-
-
-while time < 1:
-    Tx.goto(100*x.real, 100*x.imag)
-    Ty.goto(25*y.real, 25*y.imag)
-    Tdy.goto(25*dy.real, 25*dy.imag)
-    Td2y.goto(5*d2y.real, 5*d2y.imag)
-    update()
-print("X")
-print(x)
-print('Norm:')
-print((y)*(y.conjugate()) + (dy) * (dy.conjugate()))
-print('Y Value:')
-print(y)
-print('dY Value:')
-print(dy)
-input()
+#Record around 0
+x = complex(radius,0) + 0
+M0 = simulate(0)
+print(M0)
+#Record around 1
+#x = complex(radius,0)+ 1
+#M1 = simulate(1)
+#Record around a
+#x = complex(radius,0) + a
+#Ma = simulate(a)
+#Tx.goto(100*x.real, 100*x.imag)
+        #Ty.goto(25*y.real, 25*y.imag)
+        #Tdy.goto(25*dy.real, 25*dy.imag)
+        #Td2y.goto(5*d2y.real, 5*d2y.imag)
+print('Done')
