@@ -36,7 +36,7 @@ def update_Y():
 
 def update_x(center):
     global x, deltax, time
-    time += speed
+    time = speed + time
     last_x = x
     x = radius*cmath.exp(time*complex(0, math.pi * 2)) + center
     deltax = x - last_x
@@ -52,22 +52,25 @@ def update(center):
 
 
 def simulate(center):
+    global time, dy, y
+    print("started")
     dy = complex(0, 0)  # y'
     y = complex(1, 0)
     time = 0
     while time < 1:
         update(center)
     a = y
-    b = dy
+    c = dy
 
     dy = complex(1, 0)  # y'
     y = complex(0, 0)
     time = 0
     while time < 1:
         update(center)
-    c = y
+    b = y
     d = dy
-    return np.matrix([a,c],[b,d])
+
+    return np.matrix([[a,c],[b,d]])
 
 #Record around 0
 x = complex(radius,0) + 0
