@@ -14,14 +14,14 @@ y = complex(1,0)
 
 
 x = complex(radius,0)
-a = complex(2,0) #
+a = complex(15,0) #
 gamma = complex(1/2,0)
 delta = complex(1/2,0)
 epsilon = complex(1/2,0)
 alpha = complex(1/4,0)
 beta = complex(1/4,0)
-q = complex(0, 0)
-
+q = complex(2, 0)
+center = 0
 def update_d2Y():
     global d2y
     d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-q)/(x*(x-1)*(x-a)))*y
@@ -34,16 +34,16 @@ def update_Y():
     global y
     y += deltax*dy
 
-def update_x(center):
-    global x, deltax, time
+def update_x():
+    global x, deltax, time, center
     time = speed + time
     last_x = x
     x = radius*cmath.exp(time*complex(0, math.pi * 2)) + center
     deltax = x - last_x
 
 
-def update(center):
-    update_x(center)
+def update():
+    update_x()
     update_d2Y()
     update_dY()
     update_Y()
@@ -51,22 +51,24 @@ def update(center):
 
 
 
-def simulate(center):
-    global time, dy, y
+def simulate():
+    global time, d2y, dy, y
     print("started")
+    d2y = 0
     dy = complex(0, 0)  # y'
     y = complex(1, 0)
     time = 0
     while time < 1:
-        update(center)
+        update()
     a = y
     c = dy
 
+    d2y = 0
     dy = complex(1, 0)  # y'
     y = complex(0, 0)
     time = 0
     while time < 1:
-        update(center)
+        update()
     b = y
     d = dy
 
@@ -74,28 +76,24 @@ def simulate(center):
 
 #Record around 0
 x = complex(radius,0) + 0
-M0 = simulate(0)
+center = 0
+M0 = simulate()
 print(M0)
-print(M0*M0)
 #Record around 1
+center = 1
 x = complex(radius,0)+ 1
-M1 = simulate(1)
-print(M1*M1)
+M1 = simulate()
+print(M1)
 #Record around a
+center = a
 x = complex(radius,0) + a
-Ma = simulate(a)
-print(Ma*Ma)
+Ma = simulate()
+print(Ma)
 
-M = M1*M0*Ma
-print()
-print(M)
-print(np.trace(M0))
-print(np.trace(M1))
-print(np.trace(Ma))
-print(np.trace(M))
-print(np.trace((M)**2))
-print(np.linalg.eig(M1*M0))
-print(np.linalg.det(M))
+
+M = M0 * M1 * Ma
+print(np.linalg.eigvals(M))
+
 #Tx.goto(100*x.real, 100*x.imag)
         #Ty.goto(25*y.real, 25*y.imag)
         #Tdy.goto(25*dy.real, 25*dy.imag)
