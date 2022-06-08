@@ -20,8 +20,13 @@ delta = complex(1/2,0)
 epsilon = complex(1/2,0)
 alpha = complex(1/4,0)
 beta = complex(1/4,0)
-q = complex(2, 0)
+q = complex(0, 0)
 center = 0
+
+
+velocity = 0
+#Common point that all paths go through:
+p = complex(1,1)
 def update_d2Y():
     global d2y
     d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-q)/(x*(x-1)*(x-a)))*y
@@ -34,23 +39,34 @@ def update_Y():
     global y
     y += deltax*dy
 
-def update_x():
+def update_x_circ():
     global x, deltax, time, center
     time = speed + time
     last_x = x
-    x = radius*cmath.exp(time*complex(0, math.pi * 2)) + center
+    if time <= 1:
+        x = radius*cmath.exp(time*complex(0, math.pi * 2)) + center
     deltax = x - last_x
+    turtle.goto(x.real, x.imag)
 
-
+def update_x_line():
+    global x, deltax, time, center, velocity
+    time = speed + time
+    last_x = x
+    x = x + velocity
+    deltax = x - last_x
+    turtle.goto(x.real, x.imag)
 def update():
-    update_x()
+    if time<1:
+        update_x_circ()
+    if time>=1 and time < 1.5:
+        velocity = (p - (center + radius))/0.5
+        update_x_line()
+    if time >= 1.5:
+        velocity = -(p-(center + radius))/0.5
+        update_x_line()
     update_d2Y()
     update_dY()
     update_Y()
-
-
-
-
 def simulate():
     global time, d2y, dy, y
     print("started")
@@ -58,7 +74,7 @@ def simulate():
     dy = complex(0, 0)  # y'
     y = complex(1, 0)
     time = 0
-    while time < 1:
+    while time < 2:
         update()
     a = y
     c = dy
@@ -67,7 +83,7 @@ def simulate():
     dy = complex(1, 0)  # y'
     y = complex(0, 0)
     time = 0
-    while time < 1:
+    while time < 2:
         update()
     b = y
     d = dy
