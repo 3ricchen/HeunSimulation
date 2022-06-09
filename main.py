@@ -20,7 +20,7 @@ delta = complex(1/2,0)
 epsilon = complex(1/2,0)
 alpha = complex(1/4,0)
 beta = complex(1/4,0)
-q = complex(0, 0)
+q = complex(2, 0)
 center = 0
 
 #turtle = Turtle()
@@ -83,23 +83,25 @@ def simulate():
 
     return np.matrix([[a,c],[b,d]])
 
-#Record around 0
-x = complex(radius,0) + 0
-center = 0
-M0 = simulate()
-print(M0)
-#Record around 1
-center = 1
-x = complex(radius,0)+ 1
-M1 = simulate()
-print(M1)
-#Record around a
-center = a
-x = complex(radius,0) + a
-Ma = simulate()
-print(Ma)
+def findMatrices():
+    #Record around 0
+    x = complex(radius,0) + 0
+    center = 0
+    M0 = simulate()
+    print(M0)
+    #Record around 1
+    center = 1
+    x = complex(radius,0)+ 1
+    M1 = simulate()
+    print(M1)
+    #Record around a
+    center = a
+    x = complex(radius,0) + a
+    Ma = simulate()
+    print(Ma)
+    return M0, M1, Ma
 
-
+M0, M1, Ma = findMatrices()
 M = M0 * M1 * Ma
 print(np.linalg.eigvals(M))
 print(np.trace(M))
@@ -108,6 +110,12 @@ print(np.linalg.eigvals(M0))
 print(np.linalg.eigvals(M1))
 print(np.linalg.eigvals(Ma))
 
+def findTraces(M0, M1, Ma):
+    t01 = np.trace(M0 * M1)
+    t1a = np.trace(M1 * Ma)
+    return t01, t1a
+
+
 
 #Tx.goto(100*x.real, 100*x.imag)
         #Ty.goto(25*y.real, 25*y.imag)
@@ -115,8 +123,10 @@ print(np.linalg.eigvals(Ma))
         #Td2y.goto(5*d2y.real, 5*d2y.imag)
 print('Done')
 
+
 def runpass():
     # Update M0, M1, and Ma (M1, M2, and M3)
     # Compute the trace of M1M2 and M2M3
 
     pass
+
