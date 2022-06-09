@@ -20,7 +20,7 @@ delta = complex(1/2,0)
 epsilon = complex(1/2,0)
 alpha = complex(1/4,0)
 beta = complex(1/4,0)
-q = complex(2, 0)
+B = complex(2, 0) # q = 4B
 center = 0
 
 #turtle = Turtle()
@@ -29,7 +29,7 @@ center = 0
 p = complex(1,1)
 def update_d2Y():
     global d2y
-    d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-q)/(x*(x-1)*(x-a)))*y
+    d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-4*B)/(x*(x-1)*(x-a)))*y
 
 def update_dY():
     global dy
@@ -60,7 +60,7 @@ def update():
     update_Y()
 def simulate():
     global x, time, d2y, dy, y
-    print("started")
+    #print("started")
     d2y = 0
     dy = complex(0, 0)  # y'
     y = complex(1, 0)
@@ -84,21 +84,22 @@ def simulate():
     return np.matrix([[a,c],[b,d]])
 
 def findMatrices():
+    global center, x
     #Record around 0
     x = complex(radius,0) + 0
     center = 0
     M0 = simulate()
-    print(M0)
+    #print(M0)
     #Record around 1
     center = 1
     x = complex(radius,0)+ 1
     M1 = simulate()
-    print(M1)
+    #print(M1)
     #Record around a
     center = a
     x = complex(radius,0) + a
     Ma = simulate()
-    print(Ma)
+    #print(Ma)
     return M0, M1, Ma
 
 M0, M1, Ma = findMatrices()
@@ -124,9 +125,27 @@ def findTraces(M0, M1, Ma):
 print('Done')
 
 
-def runpass():
-    # Update M0, M1, and Ma (M1, M2, and M3)
-    # Compute the trace of M1M2 and M2M3
-
-    pass
-
+def runpass(passes = 20, Bdelta = .01):
+    global B
+    B0 = B
+    B1 = B + Bdelta
+    B = B0
+    Mset0 = findMatrices()
+    B = B1
+    Mset1 = findMatrices()
+    Tset0 = findTraces(Mset0[0],Mset0[1],Mset0[2])
+    Tset1 = findTraces(Mset1[0], Mset1[1], Mset1[2])
+    dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
+    dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
+    B = B0 + (dt23.conjugate()*Tset0[0].imag - dt12.conjugate()*Tset0[1].imag)/((dt12.conjugate()*dt23).imag)
+    passes -= 1
+    print("pass")
+    if passes == 0:
+        return Mset0
+    else:
+        return runpass(passes)
+results = runpass()
+print(results[0])
+print(results[1])
+print(results[2])
+print(B)
