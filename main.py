@@ -106,14 +106,14 @@ def findMatrices():
     #print(Ma)
     return M0, M1, Ma
 
-M0, M1, Ma = findMatrices()
-M = M0 * M1 * Ma
-print(np.linalg.eigvals(M))
-print(np.trace(M))
+#M0, M1, Ma = findMatrices()
+#M = M0 * M1 * Ma
+#print(np.linalg.eigvals(M))
+#print(np.trace(M))
 
-print(np.linalg.eigvals(M0))
-print(np.linalg.eigvals(M1))
-print(np.linalg.eigvals(Ma))
+#print(np.linalg.eigvals(M0))
+#print(np.linalg.eigvals(M1))
+#print(np.linalg.eigvals(Ma))
 
 def findTraces(M0, M1, Ma):
     t01 = np.trace(M0 * M1)
@@ -126,11 +126,15 @@ def findTraces(M0, M1, Ma):
         #Ty.goto(25*y.real, 25*y.imag)
         #Tdy.goto(25*dy.real, 25*dy.imag)
         #Td2y.goto(5*d2y.real, 5*d2y.imag)
-print('Done')
+#print('Done')
 
 
-def runpass(passes = 50, Bdelta = .0001):
-    global B, bees
+def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None):
+    global B, bees, speed
+    if setBstart != None: # To allow external control of setting the B parameter
+        B = setBstart
+    if setSpeed != None: # To allow external control of setting the B parameter
+        speed = setSpeed
     bees.append([B.real, B.imag])
     #print("Matrices")
     B0 = B
@@ -154,10 +158,10 @@ def runpass(passes = 50, Bdelta = .0001):
     #print("X:")
     #print(b_x)
     B = B0 + b_x*.3
-    print(B)
+    #print(B)
     passes -= 1
     if passes == 0:
-        return Mset0
+        return Mset0,B
     else:
         return runpass(passes = passes)
 
@@ -173,12 +177,12 @@ def findClosest(b):
                 closest = [m, n]
                 dist = abs(makeEigenvalue(m,n)-b)
     return closest, dist
-results = runpass()
-print(results[0])
-print(results[1])
-print(results[2])
-print(B)
-print(findClosest(B))
+#results = runpass()[0]
+#print(results[0])
+#print(results[1])
+#print(results[2])
+#print(B)
+#print(findClosest(B))
 
-plt.plot(bees)
-plt.show()
+#plt.plot(bees)
+#plt.show()
