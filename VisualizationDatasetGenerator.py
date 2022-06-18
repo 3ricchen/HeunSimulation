@@ -1,6 +1,10 @@
 # Gathers the data for the visualization program
 # Intended to only be needed to run once
 # Run before the graphical component.
+# Set the name of the output file beforehand. Be careful not to overwrite an existing data file
+# This program takes most of a day to run. For lower speeds, more passes, and higher resolution,
+# (to get more accurate data), budget time accordingly. I personally leave my computer open and plugged in overnight and
+# adjusted my computer sleep settings to keep it running.
 
 from main import findClosest, runpass
 
