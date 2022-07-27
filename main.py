@@ -129,12 +129,14 @@ def findTraces(M0, M1, Ma):
 #print('Done')
 
 
-def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None):
-    global B, bees, speed
+def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None):
+    global B, bees, speed, a
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
         speed = setSpeed
+    if seta != None:
+        a = seta
     bees.append([B.real, B.imag])
     #print("Matrices")
     B0 = B
