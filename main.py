@@ -2,6 +2,7 @@ import math
 import cmath
 from turtle import *
 import numpy as np
+import scipy
 import matplotlib.pyplot as plt
 
 radius = .4
@@ -18,9 +19,9 @@ x = complex(radius,0)
 a = complex(-1,0) #
 gamma = complex(1/2,0)
 delta = complex(1/2,0)
-epsilon = complex(1/2,0)
-alpha = complex(1/4,0)
-beta = complex(1/4,0)
+epsilon = 0.332537823601
+alpha = (gamma+delta+epsilon-1)/2
+beta = alpha
 B = complex(11,8) # q = B/4
 center = 0
 #turtle = Turtle()
@@ -154,7 +155,8 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     #print(Tset0[1])
     dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
     dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
-    b_x = (dt23.conjugate()*(Tset0[0].imag) - dt12.conjugate()*(Tset0[1].imag))/((dt12.conjugate()*dt23).imag)
+    lambdas = list(map(getLambda,Mset0))
+    b_x = (dt23.conjugate()*((Tset0[0]/(lambdas[0]*lambdas[1])).imag)/(lambdas[1]*lambdas[2]) - dt12.conjugate()*((Tset0[1]/(lambdas[1]*lambdas[2])).imag)/(lambdas[0]*lambdas[1]))/((dt12.conjugate()*dt23/(lambdas[0].conjugate()*lambdas[1]*lambdas[1].conjugate()*lambdas[2])).imag)
     #print(dt12)
     #print(dt23)
     #print("X:")
@@ -179,6 +181,12 @@ def findClosest(b):
                 closest = [m, n]
                 dist = abs(makeEigenvalue(m,n)-b)
     return closest, dist
+
+def getLambda(mat):
+    det = np.linalg.det(mat)
+    return cmath.sqrt(det)
+
+
 #results = runpass()[0]
 #print(results[0])
 #print(results[1])
@@ -188,3 +196,33 @@ def findClosest(b):
 
 #plt.plot(bees)
 #plt.show()
+
+#B^T\circxA * vec(X) = Vec (C)
+#A = A*
+#B = A
+#C = X
+
+#(A^T\circxA*)-I * vec(X) = 0
+def complexToReal(mat):
+    return np.array(
+        [[mat[0:0].real, -mat[0:0].imag, mat[0:1].real, -mat[0:1].imag],
+         [mat[0:0].imag, mat[0:0].real, mat[0:1].imag, mat[0:1].real],
+         [mat[1:0].real, -mat[1:0].imag, mat[1:1].real, -mat[1:1].imag],
+         [mat[1:0].imag, mat[1:0].real, mat[1:1].imag, -mat[1:1].real]])
+
+def isHermit(mat, zero = 10**-10): # Does the matrix live in a small shack in the wilderness?
+    return np.linalg.norm(mat - mat.transpose()) < zero
+
+def constructErrorMat(basis):
+    mat = []
+    for m in basis:
+        mat.append(np.reshape(m-m.transpose().conjugate(),(1,4)))
+
+def solve(P,Q,R):
+    x_basis = scipy.null_space(np.concatenate([np.kron(P.transpose(), P.transpose().conjugate())-np.identity(2),
+                                               np.kron(Q.transpose(), Q.transpose().conjugate())-np.identity(2),
+                                               np.kron(R.transpose(), R.transpose().conjugate())-np.identity(2)], axis=0), np.array([0]*12))
+    out_basis = []
+    for x in x_basis:
+        if isHermit(complexToReal(np.reshape(x,2,2))):
+            out_basis.append(x)
