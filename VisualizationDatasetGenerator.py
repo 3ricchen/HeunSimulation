@@ -52,7 +52,7 @@ def get_data(a, name_mod = "", passes=20, res=4, speed=.01, size=200): # Produce
 #            get_data(complex(a,b))
 
 # Most recent normal computer run
-get_data(-1, name_mod="eigvalsH(.5,.5,.332~ish)",res=4, size=200)
+get_data(-1, name_mod="eigvalsH(.5,.5,.625)",res=4, size=200)
 
 # What I want to try on a supercomputer:
 

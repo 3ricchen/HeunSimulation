@@ -72,7 +72,7 @@ flag = True
 
 def eigvis(filename, res=10, half=100):
     data = []
-    data_in = open("./" + filename + ".csv", "r").read()
+    data_in = open(filename + ".csv", "r").read()
     data_lines = data_in.splitlines()
     for line in data_lines:  # Reads in all of the eigenvalue data from the file (this is kinda a botched csv since there are
         # lists as elements requiring bracket layers to parse
@@ -141,9 +141,9 @@ def eigvis(filename, res=10, half=100):
                 pass
                 #pygame.draw.circle(screen, (255,255,0), [main.makeEigenvalue(m,n).real*res*width//len(data) + width//2,-main.makeEigenvalue(m,n).imag*res*width//len(data) + width//2], (width//len(data))*7, width=width//(2*len(data)))
     pygame.display.update()
-    pygame.image.save(screen, "./" + filename + "hsva.png")
+    pygame.image.save(screen, filename + "hsva.png")
 
-eigvis("Data/eigenvaluedata10_eigvalsH(.5,.5,.332~ish)-1", half=200, res=4)
+eigvis("/Users/EricChen/PycharmProjects/DarbouxSimmy/Data/eigenvaluedata200_eigvalsH(.5,.5,.625)-1", half=200, res=4)
 while flag:
     for event in pygame.event.get():
         if event == pygame.QUIT:

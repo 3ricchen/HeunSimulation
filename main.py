@@ -19,7 +19,7 @@ x = complex(radius,0)
 a = complex(-1,0) #
 gamma = complex(1/2,0)
 delta = complex(1/2,0)
-epsilon = 0.332537823601
+epsilon = complex(0.625,0)
 alpha = (gamma+delta+epsilon-1)/2
 beta = alpha
 B = complex(11,8) # q = B/4
@@ -56,14 +56,25 @@ def update_x():
         x = x + (p - (center + radius)) * speed
     deltax = x - last_x
    # turtle.goto(x.real*100, x.imag*100)
-
-
 def update():
     update_x()
     update_d2Y()
     update_dY()
     update_Y()
 def simulate():
+    """Simulate
+    ===========================
+
+    Uses the Update Functions defined above to simulate a monodromy around the pole defined by the variable 'center' of the Heun Equation.
+
+    Parameters:
+    -----------
+    none (all parameters of the Heun Equation are set in the Update Functions and in the global variables previously defined).
+
+    Returns:
+    -----------
+    The monodromy matrix around the 'center' pole, as a numpy array.
+    """
     global x, time, d2y, dy, y
     #print("started")
     d2y = 0
@@ -89,6 +100,19 @@ def simulate():
     return np.matrix([[a,c],[b,d]])
 
 def findMatrices():
+    """findMatrices
+    ===========================
+
+    Uses the Simulate function to find all monodromy matrices of the Heun Equation.
+
+    Parameters:
+    -----------
+    none (all parameters of the Heun Equation are set in the Update Functions and in the global variables previously defined).
+
+    Returns:
+    -----------
+    The monodromy matrices around the poles at 0, 1, and the variable a.
+    """
     global center, x
     #Record around 0
     x = complex(radius,0) + 0
@@ -117,6 +141,19 @@ def findMatrices():
 #print(np.linalg.eigvals(Ma))
 
 def findTraces(M0, M1, Ma):
+    """findTraces
+    ===========================
+
+    Uses the Simulate function to find all monodromy matrices of the Heun Equation.
+
+    Parameters:
+    -----------
+    Three matrices (as numpy arrays).
+
+    Returns:
+    ----------
+    The traces of two pairwise products.
+    """
     t01 = np.trace(M0 * M1)
     t1a = np.trace(M1 * Ma)
     return t01, t1a
