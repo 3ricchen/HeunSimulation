@@ -6,7 +6,7 @@
 # (to get more accurate data), budget time accordingly. I personally leave my computer open and plugged in overnight and
 # adjusted my computer sleep settings to keep it running.
 
-from main import findClosest, runpass
+from main import runpass
 
 # Gathering data: Stored in a 201x201 array
 

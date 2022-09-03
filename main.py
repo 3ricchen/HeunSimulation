@@ -4,6 +4,17 @@ from turtle import *
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+"""
+main
+===========================
+
+Set the parameters gamma, delta, epsilon here. This will dictate what Heun Equation is utilized in the simulation.
+"""
+gamma = complex(1/2,0)
+delta = complex(1/2,0)
+epsilon = complex(0.625,0)
+alpha = (gamma+delta+epsilon-1)/2
+beta = alpha
 
 radius = .4
 time = 0
@@ -17,11 +28,7 @@ y = complex(1,0)
 
 x = complex(radius,0)
 a = complex(-1,0) #
-gamma = complex(1/2,0)
-delta = complex(1/2,0)
-epsilon = complex(0.625,0)
-alpha = (gamma+delta+epsilon-1)/2
-beta = alpha
+
 B = complex(11,8) # q = B/4
 center = 0
 #turtle = Turtle()
@@ -32,6 +39,13 @@ bees = []
 
 #Common point that all paths go through:
 p = complex(1,1)
+
+"""
+Update Functions
+===========================
+
+The following functions simply iterate the values of x, y, and the derivatives of y and are used in the monodromy simulation.
+"""
 def update_d2Y():
     global d2y
     d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-B/4)/(x*(x-1)*(x-a)))*y
@@ -208,16 +222,6 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
 
 def makeEigenvalue(m, n):
     return 1.43554 * (complex(m,n) ** 2) + 0.114237 * complex(m,n) / complex(m,-n)
-
-def findClosest(b):
-    closest = [None, None]
-    dist = float("inf")
-    for n in range(-10,11):
-        for m in range(-10, 11):
-            if (m,n) != (0,0) and abs(makeEigenvalue(m,n) - b) < dist:
-                closest = [m, n]
-                dist = abs(makeEigenvalue(m,n)-b)
-    return closest, dist
 
 def getLambda(mat):
     det = np.linalg.det(mat)
