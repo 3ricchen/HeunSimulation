@@ -1,7 +1,7 @@
 # DarbouxSimulation
 This repository contains the code necessary to perform monodromy simulations with the Heun Equation.
 
-##Steps to conduct a simulation
+## Steps to conduct a simulation
 To conduct a simulation, complete the following:
 1. Download all python files within this repository.
 2. Change the parameters at the top of `main.py` to the desired form of the Heun Equation.
