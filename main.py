@@ -12,7 +12,7 @@ Set the parameters gamma, delta, epsilon here. This will dictate what Heun Equat
 """
 gamma = complex(1/2,0)
 delta = complex(1/2,0)
-epsilon = complex(0.625,0)
+epsilon = complex(1/2,0)
 alpha = (gamma+delta+epsilon-1)/2
 beta = alpha
 
@@ -76,7 +76,8 @@ def update():
     update_dY()
     update_Y()
 def simulate():
-    """Simulate
+    """
+    Simulate
     ===========================
 
     Uses the Update Functions defined above to simulate a monodromy around the pole defined by the variable 'center' of the Heun Equation.
@@ -114,7 +115,8 @@ def simulate():
     return np.matrix([[a,c],[b,d]])
 
 def findMatrices():
-    """findMatrices
+    """
+    findMatrices
     ===========================
 
     Uses the Simulate function to find all monodromy matrices of the Heun Equation.
@@ -155,10 +157,11 @@ def findMatrices():
 #print(np.linalg.eigvals(Ma))
 
 def findTraces(M0, M1, Ma):
-    """findTraces
+    """
+    findTraces
     ===========================
 
-    Uses the Simulate function to find all monodromy matrices of the Heun Equation.
+    A simple helper function to find the required traces for our algorithm.
 
     Parameters:
     -----------
@@ -181,14 +184,41 @@ def findTraces(M0, M1, Ma):
 #print('Done')
 
 
-def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None):
-    global B, bees, speed, a
+def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None):
+    '''
+    Runpass
+    ============================
+
+    Recursively runs our descent algorithm to calculate possible accessory parameters.
+
+    Parameters:
+    -----------
+    passes: The number of recursive calls
+    Bdelta: The distance used to approximate the trace derivatives.
+    setBstart: The initial value of B.
+    setSpeed: Determines the speed of the monodromy calculations. Higher vs lower values are a trade off of speed vs time.
+    seta: Used to set the third root a. Does not make a great difference in results.
+    setEpsilon: Used to set the epsilon parameter in the Heun Equation. Default is 1/2
+    setDelta: Used to set the delta parameter in the Heun Equation. Default is 1/2
+
+    Returns:
+    -----------
+    The final value of B and its calculated monodromies.
+    '''
+    global B, bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
         speed = setSpeed
     if seta != None:
         a = seta
+    if setEpsilon != None:
+        epsilon = setEpsilon
+    if setDelta != None:
+        delta = setDelta
+    alpha = (gamma + delta + epsilon - 1) / 2
+    beta = alpha
+
     bees.append([B.real, B.imag])
     #print("Matrices")
     B0 = B
