@@ -1,4 +1,4 @@
-# DarbouxSimulation
+# HeunSimulation
 This repository contains the code necessary to perform monodromy simulations with the Heun Equation.
 
 ## Steps to conduct a simulation
