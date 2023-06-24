@@ -184,7 +184,7 @@ def findTraces(M0, M1, Ma):
 #print('Done')
 
 
-def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None):
+def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
     '''
     Runpass
     ============================
@@ -247,6 +247,7 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     passes -= 1
     if passes == 0:
         return Mset0,B
+    #elif con
     else:
         return runpass(passes = passes)
 
@@ -297,3 +298,8 @@ def solve(P,Q,R):
     for x in x_basis:
         if isHermit(complexToReal(np.reshape(x,2,2))):
             out_basis.append(x)
+
+def asymptotics(m, n):
+    m_1 = 1/4
+    m_2 = 1/4
+    m_3 = 7/16
