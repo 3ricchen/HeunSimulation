@@ -17,8 +17,8 @@ y = complex(1,0)
 x = complex(radius,0)
 a = complex(-1,0) #
 gamma = complex(1/2,0)
-delta = complex(1/2,0)
-epsilon = complex(1/2,0)
+delta = complex(3/4,0)
+epsilon = complex(1/4,0)
 alpha = complex(1/4,0)
 beta = complex(1/4,0)
 B = complex(11,8) # q = B/4
@@ -27,9 +27,9 @@ center = 0
 #######################################################
 ### HEREIN LIES THE INCLUSION OF THE LAMBDA VALUES. ###
 #######################################################
-lambdaP = math.exp(math.pi * complex(0,1) * (1-gamma))
-lambdaQ = math.exp(math.pi * complex(0,1) * (1-delta))
-lambdaR = math.exp(math.pi * complex(0,1) * (1-epsilon))
+lambdaP = np.exp(np.pi * complex(0,1) * (1-gamma))
+lambdaQ = np.exp(np.pi * complex(0,1) * (1-delta))
+lambdaR = np.exp(np.pi * complex(0,1) * (1-epsilon))
 
 #turtle = Turtle()
 #screen = turtle.getscreen()
@@ -193,6 +193,10 @@ def findClosest(b):
                 closest = [m, n]
                 dist = abs(makeEigenvalue(m,n)-b)
     return closest, dist
+
+
+
+
 #results = runpass()[0]
 #print(results[0])
 #print(results[1])

@@ -11,8 +11,8 @@ main
 Set the parameters gamma, delta, epsilon here. This will dictate what Heun Equation is utilized in the simulation.
 """
 gamma = complex(1/2,0)
-delta = complex(1/2,0)
-epsilon = complex(1/2,0)
+delta = complex(3/4,0)
+epsilon = complex(1/4,0)
 alpha = (gamma+delta+epsilon-1)/2
 beta = alpha
 
@@ -298,6 +298,27 @@ def solve(P,Q,R):
     for x in x_basis:
         if isHermit(complexToReal(np.reshape(x,2,2))):
             out_basis.append(x)
+
+def testQuadTraces(P,Q,R):
+    lambdaP = np.exp(np.pi * complex(0, 1) * (1 - gamma))
+    lambdaQ = np.exp(np.pi * complex(0, 1) * (1 - delta))
+    lambdaR = np.exp(np.pi * complex(0, 1) * (1 - epsilon))
+    P0 = P/lambdaP
+    Q0 = Q/lambdaQ
+    R0 = R/lambdaR
+
+    p = np.trace(P0)
+    q = np.trace(Q0)
+    r = np.trace(R0)
+    tau = np.trace(np.matmul(P0,Q0))
+    sigma = np.trace(np.matmul(P0,R0))
+    rho = np.trace(np.matmul(Q0,R0))
+
+    a = tau**2 + q**2 + p**2 - 2 * p * tau * q - 4
+    b = sigma**2 + r**2 + p**2 - 2 * p * sigma * r - 4
+    c = P0[0,1] * R0[1,0] + P0[1,0] * R0[0,1]
+
+    return a, b, (c**2-4*a*b)
 
 def asymptotics(m, n):
     m_1 = 1/4
