@@ -237,14 +237,21 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
     dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
     lambdas = list(map(getLambda,Mset0))
-    b_x = (dt23.conjugate()*((Tset0[0]/(lambdas[0]*lambdas[1])).imag)/(lambdas[1]*lambdas[2]) - dt12.conjugate()*((Tset0[1]/(lambdas[1]*lambdas[2])).imag)/(lambdas[0]*lambdas[1]))/((dt12.conjugate()*dt23/(lambdas[0].conjugate()*lambdas[1]*lambdas[1].conjugate()*lambdas[2])).imag)
+    b_x = ((dt23/(lambdas[1]*lambdas[2])).conjugate()*((Tset0[0]/(lambdas[0]*lambdas[1])).imag) - (dt12/(lambdas[0]*lambdas[1])).conjugate()*((Tset0[1]/(lambdas[1]*lambdas[2])).imag))/((dt12.conjugate()*dt23/(lambdas[0].conjugate()*lambdas[1]*lambdas[1].conjugate()*lambdas[2])).imag)
+    
     #print(dt12)
     #print(dt23)
     #print("X:")
     #print(b_x)
-    B = B0 + b_x*.3
+
+    ##############################################################
+    # Change ufactor to reduce the convergence as much as needed #
+    ##############################################################
+    ufactor = 1
+    B = B0 + b_x * ufactor
     #print(B)
     passes -= 1
+    #testMatrices(Mset0[0], Mset0[1], Mset0[2])
     if passes == 0:
         return Mset0,B
     #elif con
@@ -324,3 +331,7 @@ def asymptotics(m, n):
     m_1 = 1/4
     m_2 = 1/4
     m_3 = 7/16
+
+def testMatrices(P,Q,R):
+    print(str(P) + ' ' + str(Q) + ' ' + str(R))
+    #print(np.trace(P) + ' ' + np.trace(Q) + ' ' + np.trace(R))

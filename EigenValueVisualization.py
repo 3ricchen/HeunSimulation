@@ -62,16 +62,16 @@ def eigvis(filename, res=10, half=100, axis=True):
                 sqt = sqrt(float(cord[0]), float(cord[1]))
                 print("sqt")
                 sqtpix = sqrt(x-len(data)//2,len(data)//2-y)
-                #real_pix = x*width//len(data)
-                #real_eig = (float(cord[0])*res+half)*width//len(data)
-                #imag_eig = (-float(cord[1]) * res + half) * width // len(data)
-                #imag_pix = (len(data)-1-y)*width//len(data)
-                #mag = math.sqrt(float(cord[0])**2 + float(cord[1])**2)
+                real_pix = x*width//len(data)
+                real_eig = (float(cord[0])*res+half)*width//len(data)
+                imag_eig = (-float(cord[1]) * res + half) * width // len(data)
+                imag_pix = (len(data)-1-y)*width//len(data)
+                mag = math.sqrt(float(cord[0])**2 + float(cord[1])**2)
                 # Square Root Image Transform
-                real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
-                mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                # real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                # imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                # mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                # mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
                 #real_eig = (sqt[0] * res + half) * width // len(data)
                 #imag_eig = (-sqt[1] * res + half) * width // len(data)
                 mag = math.sqrt(sqt[0] ** 2 + sqt[1] ** 2)
@@ -83,9 +83,9 @@ def eigvis(filename, res=10, half=100, axis=True):
                 shift = lambda x: x + 360*(x<0)
                 print("draw")
                 color.hsla = (shift(int(cmath.polar(complex(float(cord[0]),float(cord[1])))[1]*180/math.pi)),70,int(weight*100),100)
-                # Uncomment this for a HSV coloring
-                # pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
-                # pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
+                #Uncomment this for a HSV coloring
+                pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
+                pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
                 # Uncomment this to display the convergent values in white
                 #pygame.draw.rect(screen, (255,255,255), [real_eig, imag_eig,width//len(data), width//len(data)])
                 print("done")
@@ -148,7 +148,7 @@ def eigvis(filename, res=10, half=100, axis=True):
 
     pygame.image.save(screen, "./" + filename + "hslaE.png") # Change to edit the output filename
 
-eigvis("Data/eigenvaluedata200_eigvalsH.5.5.625-1", half=200, res=4) # Produces the image for the Lame Equation
+eigvis("Data/eigenvaluedata150_eigvalsH(.5,.1,.9)-1", half=150, res=4) # Produces the image for the Lame Equation
 while flag:
     for event in pygame.event.get():
         if event == pygame.QUIT:

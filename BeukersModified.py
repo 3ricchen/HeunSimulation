@@ -194,9 +194,6 @@ def findClosest(b):
                 dist = abs(makeEigenvalue(m,n)-b)
     return closest, dist
 
-
-
-
 #results = runpass()[0]
 #print(results[0])
 #print(results[1])
