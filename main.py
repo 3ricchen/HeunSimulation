@@ -4,6 +4,7 @@ from turtle import *
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+import multiprocessing as mp
 """
 main
 ===========================
@@ -184,7 +185,7 @@ def findTraces(M0, M1, Ma):
 #print('Done')
 
 
-def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
+def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
     '''
     Runpass
     ============================
@@ -248,6 +249,8 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     # Change ufactor to reduce the convergence as much as needed #
     ##############################################################
     ufactor = 1
+    # if b_x > B0:
+    #     ufactor = np.sqrt((B0)/b_x)
     B = B0 + b_x * ufactor
     #print(B)
     passes -= 1
@@ -257,6 +260,7 @@ def runpass(passes = 50, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     #elif con
     else:
         return runpass(passes = passes)
+
 
 def makeEigenvalue(m, n):
     return 1.43554 * (complex(m,n) ** 2) + 0.114237 * complex(m,n) / complex(m,-n)

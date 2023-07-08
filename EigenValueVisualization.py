@@ -148,7 +148,7 @@ def eigvis(filename, res=10, half=100, axis=True):
 
     pygame.image.save(screen, "./" + filename + "hslaE.png") # Change to edit the output filename
 
-eigvis("Data/eigenvaluedata150_eigvalsH(.5,.1,.9)-1", half=150, res=4) # Produces the image for the Lame Equation
+eigvis("Data/eigenvaluedata150_eigvalsH(.5,.5,.375)-1", half=150, res=4) # Produces the image for the Lame Equation
 while flag:
     for event in pygame.event.get():
         if event == pygame.QUIT:
