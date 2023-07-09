@@ -6,7 +6,7 @@
 # (to get more accurate data), budget time accordingly. I personally leave my computer open and plugged in overnight and
 # adjusted my computer sleep settings to keep it running.
 
-from main import runpass, testQuadTraces
+from main import runpass, testQuadTraces, newrunpass
 import numpy as np
 
 
@@ -48,10 +48,32 @@ def get_data(a, name_mod = "", passes=20, res=4, speed=.01, size=200):
         data_out.write("\n")
     data_out.close()
 # Most recent normal computer run
-get_data(-1, name_mod="eigvalsH(.5,.25,.75)TESTING",res=4, size=4)
+#get_data(-1, name_mod="eigvalsH(.5,.25,.75)TESTING",res=4, size=4)
 
 
+MSet, B = newrunpass(passes=20, setBstart=complex(1,1), setSpeed=0.001, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 
+P = MSet[0]
+Q = MSet[1]
+R = MSet[2]
+
+lP = np.exp(-np.pi * 1j * 0.5)
+lQ = np.exp(-np.pi * 1j * 0.5)
+lR = np.exp(-np.pi * 1j * 0.125)
+print('MATRICES')
+print(P)
+print(Q)
+print(R)
+print(P*R)
+#print(np.linalg.eigvals(R))
+print(np.trace(P*R)/(lP*lR))
+# print('EIGS')
+# print(np.linalg.eigvals(P))
+# print(np.linalg.eigvals(Q))
+# x = np.linalg.eigvals(R)
+# print(x)
+# print(abs(x[0]))
+# print(abs(x[1]))
 
 
 # What I want to try on a supercomputer:

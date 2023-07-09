@@ -172,9 +172,10 @@ def findTraces(M0, M1, Ma):
     ----------
     The traces of two pairwise products.
     """
-    t01 = np.trace(M0 * M1)
-    t1a = np.trace(M1 * Ma)
-    return t01, t1a
+    t01 = np.trace(M0 * M1)/(np.sqrt(np.linalg.det(M0) * np.linalg.det(M1)))
+    t1a = np.trace(M1 * Ma)/(np.sqrt(np.linalg.det(M1) * np.linalg.det(Ma)))
+    t0a = np.trace(M0 * Ma)/(np.sqrt(np.linalg.det(M0) * np.linalg.det(Ma)))
+    return t01, t1a, t0a
 
 
 
@@ -183,6 +184,74 @@ def findTraces(M0, M1, Ma):
         #Tdy.goto(25*dy.real, 25*dy.imag)
         #Td2y.goto(5*d2y.real, 5*d2y.imag)
 #print('Done')
+
+def getEnergy(T0):
+    return (T0[0].imag)**2 + (T0[1].imag)**2 + (T0[2].imag)**2
+
+def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
+    global B, bees, speed, a, epsilon, delta
+    if setBstart != None: # To allow external control of setting the B parameter
+        B = setBstart
+    if setSpeed != None: # To allow external control of setting the B parameter
+        speed = setSpeed
+    if seta != None:
+        a = seta
+    if setEpsilon != None:
+        epsilon = setEpsilon
+    if setDelta != None:
+        delta = setDelta
+    alpha = (gamma + delta + epsilon - 1) / 2
+    beta = alpha
+    bees.append([B.real, B.imag])
+
+    B0 = B
+    B1 = B + Bdelta
+
+    B = B0
+    Mset0 = findMatrices()
+    B = B1
+    Mset1 = findMatrices()
+    Tset0 = findTraces(Mset0[0],Mset0[1],Mset0[2]) # [t12(B0), t23(B0)]
+    Tset1 = findTraces(Mset1[0], Mset1[1], Mset1[2]) # [t12(B1), t23(B1)]
+    dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
+    dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
+    dt13 = (Tset1[2] - Tset0[2])/(Bdelta)
+    b_x = 2 * (Tset0[0].imag * dt12.conjugate()*1j + Tset0[1].imag * dt23.conjugate()*1j + Tset0[2].imag * dt13.conjugate()*1j)
+    print(abs(b_x))
+    # print('B_X')
+    # print(b_x)
+    # print('MATS')
+    # print(Mset0[0])
+    # print(Mset0[1])
+    # print(Mset0[2])
+    ##############################################################
+    # Change ufactor to reduce the convergence as much as needed #
+    ##############################################################
+    ufactor = 0.1*max(1,1/abs(b_x))
+    # if b_x > B0:
+    #     ufactor = np.sqrt((B0)/b_x)
+    B = B0 - b_x * ufactor
+
+    Mset2 = findMatrices()
+    Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
+    energy0 = getEnergy(Tset0)
+    energy1 = getEnergy(Tset2)
+
+    # while energy1 > energy0 - 0.1 * abs(b_x):
+    #     ufactor = 0.9*ufactor
+    #     B = B0 - b_x * ufactor
+    #     Mset2 = findMatrices()
+    #     Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
+    #     energy1 = getEnergy(Tset2)
+
+    passes -= 1
+    #testMatrices(Mset0[0], Mset0[1], Mset0[2])
+    if passes == 0:
+        return Mset0,B
+    #elif con
+    else:
+        return newrunpass(passes = passes)
+    
 
 
 def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
@@ -240,6 +309,7 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     lambdas = list(map(getLambda,Mset0))
     b_x = ((dt23/(lambdas[1]*lambdas[2])).conjugate()*((Tset0[0]/(lambdas[0]*lambdas[1])).imag) - (dt12/(lambdas[0]*lambdas[1])).conjugate()*((Tset0[1]/(lambdas[1]*lambdas[2])).imag))/((dt12.conjugate()*dt23/(lambdas[0].conjugate()*lambdas[1]*lambdas[1].conjugate()*lambdas[2])).imag)
     
+
     #print(dt12)
     #print(dt23)
     #print("X:")

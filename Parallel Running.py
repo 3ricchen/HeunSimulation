@@ -2,10 +2,11 @@ import multiprocessing as mp
 from main import runpass
 import numpy as np
 import os
+import time
 
 #Runs the runpass function, with a starting guess value of st.
 def funct(st):
-    Mset, B = runpass(passes = 20, setBstart = st, setSpeed = .01, setEpsilon = 0.125, setDelta = 0.50)
+    Mset, B = runpass(passes = 20, setBstart = st, setSpeed = .001, setEpsilon = 0.125, setDelta = 0.50)
     # Mset, B = runpass(passes=passes, setBstart=complex(real / res, imag / res), setSpeed=speed, setEpsilon = 0.125, setDelta=0.50)
     
     f = open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w')
@@ -17,8 +18,7 @@ def funct(st):
 
 # funct(complex(0,0))
 
-size = 5
-res = 4
+
 def runParallel(a, name_mod, size, res, num_cores = None, passes = 20, setEpsilon = 0.5, setDelta = 0.5):
     points = []
     for real in range(-size,size+1):
@@ -43,6 +43,7 @@ def runParallel(a, name_mod, size, res, num_cores = None, passes = 20, setEpsilo
 
     #Converts the txt files to a usable CSV file for EigenValueVisualization.
     
+count = 0
 
 def convert(name_mod,a,size,res):
     data_out = open("./Data/eigenvaluedata"+str(size)+"_"+name_mod+str(a)+".csv", "w") # Opens the output file to write to
@@ -64,9 +65,22 @@ def convert(name_mod,a,size,res):
 
 
 
-#runParallel(-1, 'eigvalsH(.5,.5,.375)', 10, 4, setEpsilon = 0.375, setDelta = 0.5)
+######################################
+# SET SIZE AND RESOLUTION PARAMETERS #
+######################################
+size = 75
+res = 4
 
-convert('eigvalsH(.5,.5,.375)',-1,10,4)
+runParallel(-1, 'eigvalsH(.5,.5,.375)', size, res, setEpsilon = 0.375, setDelta = 0.5)
+
+while count < (2*size+1)**2:
+    count=0
+    l = os.listdir('Output')
+    for thing in l:
+        if os.path.isfile(thing):
+            count = count+1
+    time.sleep(60)
+convert('eigvalsH(.5,.5,.375)',-1, size, res)
 
 
 #get_data(-1, name_mod="TESTING",res=4, size=4)
