@@ -157,6 +157,12 @@ def findMatrices():
 #print(np.linalg.eigvals(M1))
 #print(np.linalg.eigvals(Ma))
 
+def getLambdas():
+    lP = np.exp(-np.pi * 1j * alpha)
+    lQ = np.exp(-np.pi * 1j * delta)
+    lR = np.exp(-np.pi * 1j * epsilon)
+    return lP,lQ,lR
+
 def findTraces(M0, M1, Ma):
     """
     findTraces
@@ -172,9 +178,20 @@ def findTraces(M0, M1, Ma):
     ----------
     The traces of two pairwise products.
     """
+    # lP, lQ, lR = getLambdas()
     t01 = np.trace(M0 * M1)/(np.sqrt(np.linalg.det(M0) * np.linalg.det(M1)))
+    # print(np.linalg.det(M0) * np.linalg.det(M1))
     t1a = np.trace(M1 * Ma)/(np.sqrt(np.linalg.det(M1) * np.linalg.det(Ma)))
+    # print(np.linalg.det(M1) * np.linalg.det(Ma))
     t0a = np.trace(M0 * Ma)/(np.sqrt(np.linalg.det(M0) * np.linalg.det(Ma)))
+    # print(np.linalg.det(M0) * np.linalg.det(Ma))
+    # print('-----MATRICES-----')
+    # print(M0)
+    # print(M1)
+    # print(Ma)
+    # t01 = np.trace(M0 * M1)/(lP * lQ)
+    # t1a = np.trace(M1 * Ma)/(lQ * lR)
+    # t0a = np.trace(M0 * Ma)/(lP * lR)
     return t01, t1a, t0a
 
 
@@ -185,15 +202,20 @@ def findTraces(M0, M1, Ma):
         #Td2y.goto(5*d2y.real, 5*d2y.imag)
 #print('Done')
 
-def getEnergy(T0):
+
+
+def getNewEnergy(T0):
+    #print(T0)
     return (T0[0].imag)**2 + (T0[1].imag)**2 + (T0[2].imag)**2
 
-def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
+def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setAlpha = None, setEpsilon = None, setDelta = None, movement_min = None):
     global B, bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
         speed = setSpeed
+    if setAlpha != None:
+        alpha = setAlpha
     if seta != None:
         a = seta
     if setEpsilon != None:
@@ -217,7 +239,7 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
     dt13 = (Tset1[2] - Tset0[2])/(Bdelta)
     b_x = 2 * (Tset0[0].imag * dt12.conjugate()*1j + Tset0[1].imag * dt23.conjugate()*1j + Tset0[2].imag * dt13.conjugate()*1j)
-    print(abs(b_x))
+    # print(abs(b_x))
     # print('B_X')
     # print(b_x)
     # print('MATS')
@@ -227,34 +249,70 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     ##############################################################
     # Change ufactor to reduce the convergence as much as needed #
     ##############################################################
-    ufactor = 0.1*max(1,1/abs(b_x))
     # if b_x > B0:
     #     ufactor = np.sqrt((B0)/b_x)
+    
+    ufactor = 0.1 * min(1,abs(1/b_x)) #* min(1,abs(b_x)/getNewEnergy(Tset0))
     B = B0 - b_x * ufactor
 
     Mset2 = findMatrices()
     Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
-    energy0 = getEnergy(Tset0)
-    energy1 = getEnergy(Tset2)
+    energy0 = getNewEnergy(Tset0)
+    energy1 = getNewEnergy(Tset2)
 
-    # while energy1 > energy0 - 0.1 * abs(b_x):
-    #     ufactor = 0.9*ufactor
-    #     B = B0 - b_x * ufactor
-    #     Mset2 = findMatrices()
-    #     Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
-    #     energy1 = getEnergy(Tset2)
+    b_x2 = 2 * (Tset2[0].imag * dt12.conjugate()*1j + Tset2[1].imag * dt23.conjugate()*1j + Tset2[2].imag * dt13.conjugate()*1j)
 
-    passes -= 1
+
+
+    #PARAMETERS FOR WOLFE CONDITION
+    beta1 = 0.1 #
+    beta2 = 0.9
+    count = 0
+    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs(b_x2)/abs(b_x) > beta2:
+        if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * 0.5:
+            count += 1
+            print('COND1')
+            # print('HAVE TO LOOP')
+            # print('LOOPING')
+            # print(abs(b_x)* ufactor)
+            ufactor = 0.8 * ufactor
+            B = B0 - b_x * ufactor
+            # print(B)
+            Mset2 = findMatrices()
+            Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
+            energy1 = getNewEnergy(Tset2)
+            print(energy1)
+            print(B)
+        else:
+            count += 1
+            print('COND2')
+            ufactor = 1.2 * ufactor
+            B = B0 - b_x * ufactor
+            Mset2 = findMatrices()
+            Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
+            b_x2 = 2 * (Tset2[0].imag * dt12.conjugate()*1j + Tset2[1].imag * dt23.conjugate()*1j + Tset2[2].imag * dt13.conjugate()*1j)
+            print(getNewEnergy(Tset2))
+            print(B)
+    print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(Tset2)))
+    
     #testMatrices(Mset0[0], Mset0[1], Mset0[2])
-    if passes == 0:
+    if passes == 1:
+        print('FINISHED' + str(B))
         return Mset0,B
-    #elif con
+    elif passes ==  -1:
+        if abs(b_x)*ufactor < speed/100:
+            return Mset0, B
+        else:
+            print('MAGS ' + str(abs(b_x)*ufactor) + ', ' + str(speed/100))
+            return newrunpass(passes = passes)
     else:
+        passes -= 1
+        print('PASSES LEFT ' + str(passes))
         return newrunpass(passes = passes)
     
 
 
-def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
+def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None):
     '''
     Runpass
     ============================
@@ -282,6 +340,8 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
         speed = setSpeed
     if seta != None:
         a = seta
+    if setGamma != None:
+        gamma = setGamma
     if setEpsilon != None:
         epsilon = setEpsilon
     if setDelta != None:
@@ -318,18 +378,29 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     ##############################################################
     # Change ufactor to reduce the convergence as much as needed #
     ##############################################################
-    ufactor = 1
+    ufactor = 0.1 * min(1,1/abs(b_x))
     # if b_x > B0:
     #     ufactor = np.sqrt((B0)/b_x)
     B = B0 + b_x * ufactor
+    #print(b_x)
     #print(B)
-    passes -= 1
     #testMatrices(Mset0[0], Mset0[1], Mset0[2])
-    if passes == 0:
-        return Mset0,B
-    #elif con
+    if passes == 1:
+        print('FINISHED' + str(B))
+        return Mset0, B
+    elif passes < 0:
+        if abs(b_x) < setSpeed/100 or passes <= -300:
+            return Mset0, B
+        else:
+            # print('MAGNITUDE: ' + str(abs(b_x)/(setSpeed/100)))
+            passes -= 1
+            return runpass(passes = passes)
     else:
+        passes -= 1
+        # print('PASSES LEFT' + str(passes))
         return runpass(passes = passes)
+
+
 
 
 def makeEigenvalue(m, n):
@@ -338,6 +409,7 @@ def makeEigenvalue(m, n):
 def getLambda(mat):
     det = np.linalg.det(mat)
     return cmath.sqrt(det)
+
 
 
 #results = runpass()[0]
@@ -391,16 +463,37 @@ def testQuadTraces(P,Q,R):
     p = np.trace(P0)
     q = np.trace(Q0)
     r = np.trace(R0)
-    tau = np.trace(np.matmul(P0,Q0))
-    sigma = np.trace(np.matmul(P0,R0))
-    rho = np.trace(np.matmul(Q0,R0))
+    tau = np.trace(P0*Q0)
+    sigma = np.trace(P0*R0)
+    rho = np.trace(Q0*R0)
 
     a = tau**2 + q**2 + p**2 - 2 * p * tau * q - 4
     b = sigma**2 + r**2 + p**2 - 2 * p * sigma * r - 4
     c = P0[0,1] * R0[1,0] + P0[1,0] * R0[0,1]
 
-    return a, b, (c**2-4*a*b)
+    if a >= 0 and b >= 0 and (c**2-4*a*b) <= 0:
+        return True
+    else:
+        return False
 
+    #return a, b, (c**2-4*a*b)
+def testrunpass(setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
+    global B, bees, speed, a, epsilon, delta
+    if setBstart != None: # To allow external control of setting the B parameter
+        B = setBstart
+    if setSpeed != None: # To allow external control of setting the B parameter
+        speed = setSpeed
+    if seta != None:
+        a = seta
+    if setEpsilon != None:
+        epsilon = setEpsilon
+    if setDelta != None:
+        delta = setDelta
+    alpha = (gamma + delta + epsilon - 1) / 2
+    beta = alpha
+    Mset = findMatrices()
+    return testQuadTraces(Mset[0],Mset[1],Mset[2])
+    
 def asymptotics(m, n):
     m_1 = 1/4
     m_2 = 1/4
