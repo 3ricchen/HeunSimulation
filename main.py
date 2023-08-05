@@ -221,14 +221,14 @@ def getEnergyGradient(B,Bdelta = .0001):
 
 
 
-def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setAlpha = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
+def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
     global bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
         speed = setSpeed
-    if setAlpha != None:
-        alpha = setAlpha
+    if setGamma != None:
+        gamma = setGamma
     if seta != None:
         a = seta
     if setEpsilon != None:
@@ -254,23 +254,24 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     #PARAMETERS FOR WOLFE CONDITION
     beta1 = 0.1 #
     beta2 = 0.9
+    stepmult = 0.9
     count = 0
-    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs((b_x2*b_x.conjugate()).real())/(abs(b_x)**2) > beta2:
+    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs((b_x2*b_x.conjugate()).real)/(abs(b_x)**2) > beta2:
         if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1:
             count += 1
             print('COND1')
-            ufactor = 0.8 * ufactor
+            ufactor = stepmult * ufactor
             B = B0 - b_x * ufactor
             energy1 = getNewEnergy(B)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
         else:
             count += 1
             print('COND2')
-            ufactor = 1.2 * ufactor
+            ufactor = ufactor/stepmult
             B = B0 - b_x * ufactor
             energy1 = getNewEnergy(B)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
-    print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(Tset2)))
+    print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(B)))
     
     if passes == 1:
         print('FINISHED' + str(B))
@@ -482,6 +483,6 @@ def testMatrices(P,Q,R):
 
 #####   Testing   #####
 
-MSet,B = newrunpass(passes=-1, setBstart= 3, setSpeed=0.001, setAlpha = 0.5, setEpsilon = 0.125, setDelta=0.50)
-print(Mset)
-print(B)
+# MSet,B = newrunpass(passes=-1, setBstart= 3, setSpeed=0.001, setAlpha = 0.5, setEpsilon = 0.125, setDelta=0.50)
+# print(MSet)
+# print(B)

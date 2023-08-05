@@ -13,7 +13,7 @@ for i in range(-5,5):
 #     MSet,B = newrunpass(passes=30, setBstart= complex(i), setSpeed=0.0005, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 #     print(B)
 #     print(complex(i))
-MSet,B = newrunpass(passes=-1, setBstart= 5, setSpeed=0.001, setAlpha = 0.5, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
+MSet,B = newrunpass(passes=-1, setBstart= 7, setSpeed=0.001, setGamma = 0.5, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 #MSet,B = runpass(passes=30, setBstart= 5-1j, setSpeed=0.0001, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 
 P = MSet[0]
