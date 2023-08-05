@@ -1,6 +1,6 @@
 import math
 import cmath
-from turtle import *
+#from turtle import *
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
@@ -30,7 +30,7 @@ y = complex(1,0)
 x = complex(radius,0)
 a = complex(-1,0) #
 
-B = complex(11,8) # q = B/4
+B_init = complex(11,8) # q = B/4
 center = 0
 #turtle = Turtle()
 #screen = turtle.getscreen()
@@ -47,7 +47,7 @@ Update Functions
 
 The following functions simply iterate the values of x, y, and the derivatives of y and are used in the monodromy simulation.
 """
-def update_d2Y():
+def update_d2Y(B):
     global d2y
     d2y = -(gamma/x+delta/(x-1)+epsilon/(x-a))*dy - ((alpha*beta*x-B/4)/(x*(x-1)*(x-a)))*y
 
@@ -71,12 +71,12 @@ def update_x():
         x = x + (p - (center + radius)) * speed
     deltax = x - last_x
    # turtle.goto(x.real*100, x.imag*100)
-def update():
+def update(B):
     update_x()
-    update_d2Y()
+    update_d2Y(B)
     update_dY()
     update_Y()
-def simulate():
+def simulate(B):
     """
     Simulate
     ===========================
@@ -99,7 +99,7 @@ def simulate():
     time = 0
     x = p
     while time < 3:
-        update()
+        update(B)
     a = y
     c = dy
 
@@ -109,16 +109,16 @@ def simulate():
     time = 0
     x = p
     while time < 3:
-        update()
+        update(B)
     b = y
     d = dy
 
     return np.matrix([[a,c],[b,d]])
 
-def findMatrices():
+def findMatrices(B):
     """
     findMatrices
-    ===========================
+B    ===========================
 
     Uses the Simulate function to find all monodromy matrices of the Heun Equation.
 
@@ -134,21 +134,21 @@ def findMatrices():
     #Record around 0
     x = complex(radius,0) + 0
     center = 0
-    M0 = simulate()
+    M0 = simulate(B)
     #print(M0)
     #Record around 1
     center = 1
     x = complex(radius,0)+ 1
-    M1 = simulate()
+    M1 = simulate(B)
     #print(M1)
     #Record around a
     center = a
     x = complex(radius,0) + a
-    Ma = simulate()
+    Ma = simulate(B)
     #print(Ma)
     return M0, M1, Ma
 
-#M0, M1, Ma = findMatrices()
+#M0, M1, Ma = findMatrices(B)
 #M = M0 * M1 * Ma
 #print(np.linalg.eigvals(M))
 #print(np.trace(M))
@@ -204,12 +204,25 @@ def findTraces(M0, M1, Ma):
 
 
 
-def getNewEnergy(T0):
-    #print(T0)
+def getNewEnergy(B):
+    Mats = findMatrices(B)
+    T0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
     return (T0[0].imag)**2 + (T0[1].imag)**2 + (T0[2].imag)**2
 
-def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setAlpha = None, setEpsilon = None, setDelta = None, movement_min = None):
-    global B, bees, speed, a, epsilon, delta
+def getEnergyGradient(B,Bdelta = .0001):
+    Mats = findMatrices(B)
+    Mats1 = findMatrices(B + Bdelta)
+    Tset0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
+    Tset1 = findTraces(Mats1[0], Mats1[1], Mats1[2]) # [t12(B1), t23(B1)]
+    dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
+    dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
+    dt13 = (Tset1[2] - Tset0[2])/(Bdelta)
+    return 2 * (Tset0[0].imag * dt12.conjugate()*1j + Tset0[1].imag * dt23.conjugate()*1j + Tset0[2].imag * dt13.conjugate()*1j)
+
+
+
+def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setAlpha = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
+    global bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
@@ -227,92 +240,55 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     bees.append([B.real, B.imag])
 
     B0 = B
-    B1 = B + Bdelta
 
-    B = B0
-    Mset0 = findMatrices()
-    B = B1
-    Mset1 = findMatrices()
-    Tset0 = findTraces(Mset0[0],Mset0[1],Mset0[2]) # [t12(B0), t23(B0)]
-    Tset1 = findTraces(Mset1[0], Mset1[1], Mset1[2]) # [t12(B1), t23(B1)]
-    dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
-    dt23 = (Tset1[1] - Tset0[1])/(Bdelta)
-    dt13 = (Tset1[2] - Tset0[2])/(Bdelta)
-    b_x = 2 * (Tset0[0].imag * dt12.conjugate()*1j + Tset0[1].imag * dt23.conjugate()*1j + Tset0[2].imag * dt13.conjugate()*1j)
-    # print(abs(b_x))
-    # print('B_X')
-    # print(b_x)
-    # print('MATS')
-    # print(Mset0[0])
-    # print(Mset0[1])
-    # print(Mset0[2])
-    ##############################################################
-    # Change ufactor to reduce the convergence as much as needed #
-    ##############################################################
-    # if b_x > B0:
-    #     ufactor = np.sqrt((B0)/b_x)
+    energy0 = getNewEnergy(B0)
+    b_x = getEnergyGradient(B, Bdelta=Bdelta)
     
     ufactor = 0.1 * min(1,abs(1/b_x)) #* min(1,abs(b_x)/getNewEnergy(Tset0))
     B = B0 - b_x * ufactor
 
-    Mset2 = findMatrices()
-    Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
-    energy0 = getNewEnergy(Tset0)
-    energy1 = getNewEnergy(Tset2)
-
-    b_x2 = 2 * (Tset2[0].imag * dt12.conjugate()*1j + Tset2[1].imag * dt23.conjugate()*1j + Tset2[2].imag * dt13.conjugate()*1j)
-
+    energy1 = getNewEnergy(B)
+    b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
 
 
     #PARAMETERS FOR WOLFE CONDITION
     beta1 = 0.1 #
     beta2 = 0.9
     count = 0
-    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs(b_x2)/abs(b_x) > beta2:
-        if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * 0.5:
+    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs((b_x2*b_x.conjugate()).real())/(abs(b_x)**2) > beta2:
+        if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1:
             count += 1
             print('COND1')
-            # print('HAVE TO LOOP')
-            # print('LOOPING')
-            # print(abs(b_x)* ufactor)
             ufactor = 0.8 * ufactor
             B = B0 - b_x * ufactor
-            # print(B)
-            Mset2 = findMatrices()
-            Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
-            energy1 = getNewEnergy(Tset2)
-            print(energy1)
-            print(B)
+            energy1 = getNewEnergy(B)
+            b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
         else:
             count += 1
             print('COND2')
             ufactor = 1.2 * ufactor
             B = B0 - b_x * ufactor
-            Mset2 = findMatrices()
-            Tset2 = findTraces(Mset2[0],Mset2[1],Mset2[2])
-            b_x2 = 2 * (Tset2[0].imag * dt12.conjugate()*1j + Tset2[1].imag * dt23.conjugate()*1j + Tset2[2].imag * dt13.conjugate()*1j)
-            print(getNewEnergy(Tset2))
-            print(B)
+            energy1 = getNewEnergy(B)
+            b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
     print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(Tset2)))
     
-    #testMatrices(Mset0[0], Mset0[1], Mset0[2])
     if passes == 1:
         print('FINISHED' + str(B))
-        return Mset0,B
+        return findMatrices(B),B
     elif passes ==  -1:
         if abs(b_x)*ufactor < speed/100:
-            return Mset0, B
+            return findMatrices(B), B
         else:
             print('MAGS ' + str(abs(b_x)*ufactor) + ', ' + str(speed/100))
-            return newrunpass(passes = passes)
+            return newrunpass(passes = passes, B = B)
     else:
         passes -= 1
         print('PASSES LEFT ' + str(passes))
-        return newrunpass(passes = passes)
+        return newrunpass(passes = passes, B = B)
     
 
 
-def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None):
+def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
     '''
     Runpass
     ============================
@@ -333,7 +309,7 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     -----------
     The final value of B and its calculated monodromies.
     '''
-    global B, bees, speed, a, epsilon, delta
+    global bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
@@ -354,9 +330,9 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     B0 = B
     B1 = B + Bdelta
     B = B0
-    Mset0 = findMatrices()
+    Mset0 = findMatrices(B)
     B = B1
-    Mset1 = findMatrices()
+    Mset1 = findMatrices(B)
     #print(str(Mset0[0]) + "\n" + str(Mset0[1]) + "\n" + str(Mset0[2]))
     #print(str(Mset1[0]) + "\n" + str(Mset1[1]) + "\n" + str(Mset1[2]))
     Tset0 = findTraces(Mset0[0],Mset0[1],Mset0[2]) # [t12(B0), t23(B0)]
@@ -394,11 +370,11 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
         else:
             # print('MAGNITUDE: ' + str(abs(b_x)/(setSpeed/100)))
             passes -= 1
-            return runpass(passes = passes)
+            return runpass(passes = passes, B = B)
     else:
         passes -= 1
         # print('PASSES LEFT' + str(passes))
-        return runpass(passes = passes)
+        return runpass(passes = passes, B = B)
 
 
 
@@ -491,7 +467,7 @@ def testrunpass(setBstart = None, setSpeed = None, seta = None, setEpsilon = Non
         delta = setDelta
     alpha = (gamma + delta + epsilon - 1) / 2
     beta = alpha
-    Mset = findMatrices()
+    Mset = findMatrices(B)
     return testQuadTraces(Mset[0],Mset[1],Mset[2])
     
 def asymptotics(m, n):
@@ -502,3 +478,10 @@ def asymptotics(m, n):
 def testMatrices(P,Q,R):
     print(str(P) + ' ' + str(Q) + ' ' + str(R))
     #print(np.trace(P) + ' ' + np.trace(Q) + ' ' + np.trace(R))
+
+
+#####   Testing   #####
+
+MSet,B = newrunpass(passes=-1, setBstart= 3, setSpeed=0.001, setAlpha = 0.5, setEpsilon = 0.125, setDelta=0.50)
+print(Mset)
+print(B)
