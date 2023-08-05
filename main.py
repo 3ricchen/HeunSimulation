@@ -222,7 +222,7 @@ def getEnergyGradient(B,Bdelta = .0001):
 
 
 def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
-    global bees, speed, a, epsilon, delta
+    global bees, speed, a, gamma, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
@@ -254,7 +254,7 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     #PARAMETERS FOR WOLFE CONDITION
     beta1 = 0.1 #
     beta2 = 0.9
-    stepmult = 0.9
+    stepmult = 0.95
     count = 0
     while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs((b_x2*b_x.conjugate()).real)/(abs(b_x)**2) > beta2:
         if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1:
@@ -310,7 +310,7 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     -----------
     The final value of B and its calculated monodromies.
     '''
-    global bees, speed, a, epsilon, delta
+    global bees, speed, a, gamma, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
     if setSpeed != None: # To allow external control of setting the B parameter
