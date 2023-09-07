@@ -28,6 +28,7 @@ def eigvis(filename, res=10, half=100, axis=True):
     --------
     Draws an image on the screen and saves it to filename + hsvaE.png
     '''
+    weight = 1
     data = []
     data_in = open("./" + filename + ".csv", "r").read()
     data_lines = data_in.splitlines()
@@ -69,35 +70,37 @@ def eigvis(filename, res=10, half=100, axis=True):
                 imag_pix = (len(data)-1-y)*width//len(data)
                 mag = math.sqrt(float(cord[0])**2 + float(cord[1])**2)
                 # Square Root Image Transform
-                real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
-                mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
-                real_eig = (sqt[0] * res + half) * width // len(data)
-                imag_eig = (-sqt[1] * res + half) * width // len(data)
-                mag = math.sqrt(sqt[0] ** 2 + sqt[1] ** 2)
-                normd = [float(cord[0])/mag, 0, float(cord[1])/mag]
-                weight = 2*math.atan(mag/10)/math.pi
-                print(sqt)
+                # real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                # imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                # mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                # mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                # real_eig = (sqt[0] * res + half) * width // len(data)
+                # imag_eig = (-sqt[1] * res + half) * width // len(data)
+                # mag = math.sqrt(sqt[0] ** 2 + sqt[1] ** 2)
+                # normd = [float(cord[0])/mag, 0, float(cord[1])/mag]
+                # weight = 2*math.atan(mag/10)/math.pi
+                # print(sqt)
+
                 # Uncomment this for a red/blue coloring
                 #pygame.draw.rect(screen, (int(normd[0]*weight*127 + 127),weight*64,int(normd[2]*weight*127 + 127)), [real_pix, imag_pix, width//len(data), width//len(data)])
-                color = pygame.Color(0)
+                #color = pygame.Color(0)
                 shift = lambda x: x + 360*(x<0)
                 print("draw")
                 color.hsla = (shift(int(cmath.polar(complex(float(cord[0]),float(cord[1])))[1]*180/math.pi)),70,int(weight*100),100)
+                
                 #Uncomment this for a HSV coloring
-                if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
-                # if abs(sqtpix[0] - int(sqtpix[0])) < 0.01 and abs(sqtpix[1] - int(sqtpix[1]/np.pi)) < 0.01:
-                    black = pygame.Color(0,0,0)
-                    pygame.draw.rect(screen, black, [real_pix, imag_pix, width//len(data), width//len(data)])
-                else:
-                    pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
+                # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
+                # # if abs(sqtpix[0] - int(sqtpix[0])) < 0.01 and abs(sqtpix[1] - int(sqtpix[1]/np.pi)) < 0.01:
+                #     black = pygame.Color(0,0,0)
+                #     pygame.draw.rect(screen, black, [real_pix, imag_pix, width//len(data), width//len(data)])
+                # else:
+                #     pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
     
-                if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
-                    black = pygame.Color(0,0,0)
-                    pygame.draw.rect(screen, black, [mreal_pix, mimag_pix, width//len(data), width//len(data)])
-                else:
-                    pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
+                # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
+                #     black = pygame.Color(0,0,0)
+                #     pygame.draw.rect(screen, black, [mreal_pix, mimag_pix, width//len(data), width//len(data)])
+                # else:
+                #     pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
                     
                 # Uncomment this to display the convergent values in white
                 #pygame.draw.rect(screen, (255,255,255), [real_eig, imag_eig,width//len(data), width//len(data)])
@@ -161,7 +164,7 @@ def eigvis(filename, res=10, half=100, axis=True):
 
     pygame.image.save(screen, "./" + filename + "hslaE.png") # Change to edit the output filename
 
-eigvis("Data/eigenvaluedata200_eigvalsH(.5,.5,.125)-1TESTQUAD", half=15, res=4) # Produces the image for the Lame Equation
+eigvis("Data/eigenvaluedata25_eigsLatticeNew(.5,.5,.125)-1", half=25, res=1) # Produces the image for the Lame Equation
 while flag:
     for event in pygame.event.get():
         if event == pygame.QUIT:

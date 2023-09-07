@@ -115,7 +115,7 @@ def simulate(B):
 
     return np.matrix([[a,c],[b,d]])
 
-def findMatrices(B):
+def findMatrices(B, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
     """
     findMatrices
 B    ===========================
@@ -130,7 +130,16 @@ B    ===========================
     -----------
     The monodromy matrices around the poles at 0, 1, and the variable a.
     """
-    global center, x
+    global center, x, a, gamma, delta, epsilon
+    if setGamma != None:
+        gamma = setGamma
+    if seta != None:
+        a = seta
+    if setEpsilon != None:
+        epsilon = setEpsilon
+    if setDelta != None:
+        delta = setDelta
+
     #Record around 0
     x = complex(radius,0) + 0
     center = 0
@@ -204,14 +213,15 @@ def findTraces(M0, M1, Ma):
 
 
 
-def getNewEnergy(B):
-    Mats = findMatrices(B)
+def getNewEnergy(B, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
+    Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
     T0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
-    return (T0[0].imag)**2 + (T0[1].imag)**2 + (T0[2].imag)**2
+    # return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
+    return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
 
-def getEnergyGradient(B,Bdelta = .0001):
-    Mats = findMatrices(B)
-    Mats1 = findMatrices(B + Bdelta)
+def getEnergyGradient(B,Bdelta = .0001, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
+    Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
+    Mats1 = findMatrices(B + Bdelta, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
     Tset0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
     Tset1 = findTraces(Mats1[0], Mats1[1], Mats1[2]) # [t12(B1), t23(B1)]
     dt12 = (Tset1[0] - Tset0[0])/(Bdelta)
@@ -221,7 +231,7 @@ def getEnergyGradient(B,Bdelta = .0001):
 
 
 
-def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
+def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
     global bees, speed, a, gamma, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
@@ -244,48 +254,68 @@ def newrunpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, s
     energy0 = getNewEnergy(B0)
     b_x = getEnergyGradient(B, Bdelta=Bdelta)
     
-    ufactor = 0.1 * min(1,abs(1/b_x)) #* min(1,abs(b_x)/getNewEnergy(Tset0))
-    B = B0 - b_x * ufactor
-
-    energy1 = getNewEnergy(B)
-    b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
+    searchdir = -b_x/(abs(b_x))
 
 
     #PARAMETERS FOR WOLFE CONDITION
-    beta1 = 0.1 #
+    beta1 = 0.9 #
     beta2 = 0.9
     stepmult = 0.95
     count = 0
-    while energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1 or abs((b_x2*b_x.conjugate()).real)/(abs(b_x)**2) > beta2:
-        if energy1 > energy0 -  abs(b_x) * abs(b_x) * ufactor * beta1:
-            count += 1
-            print('COND1')
-            ufactor = stepmult * ufactor
-            B = B0 - b_x * ufactor
+
+    minu = 0
+    if maxstep == None:
+        maxu = 2 * 1.2 * (abs(B) + 2**0.5 * 1.2)
+    else:
+        maxu = maxstep
+    curu = (minu + maxu)/2
+    #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
+    B = B0 + curu * searchdir
+    energy1 = getNewEnergy(B)
+    b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
+
+    while energy1 > energy0 -  abs(b_x) * curu * beta1 or abs((b_x2 * searchdir.conjugate()).real) > beta2 * abs((b_x * searchdir.conjugate()).real):
+        if abs(minu - maxu) < 1e-10:
+            break
+        if  energy1 > energy0 -  abs(b_x) * curu * beta1:
+            #print('COND1')
+            maxu = curu
+            curu = (minu + maxu)/2
+            #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
+            B = B0 + curu * searchdir
             energy1 = getNewEnergy(B)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
         else:
-            count += 1
-            print('COND2')
-            ufactor = ufactor/stepmult
-            B = B0 - b_x * ufactor
+            #print('COND2')
+            minu = curu
+            curu = (minu + maxu)/2
+            #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
+            B = B0 + curu * searchdir
             energy1 = getNewEnergy(B)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
-    print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(B)))
+    #print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(B)))
     
     if passes == 1:
         print('FINISHED' + str(B))
-        return findMatrices(B),B
-    elif passes ==  -1:
-        if abs(b_x)*ufactor < speed/100:
+        return findMatrices(B), B
+        #return B
+    elif passes <0:
+        if curu < speed/100 or passes == -200:
+        #if curu < speed/100:
+            print('FINISHED' + str(B))
             return findMatrices(B), B
+            #return np.array(B)
         else:
-            print('MAGS ' + str(abs(b_x)*ufactor) + ', ' + str(speed/100))
-            return newrunpass(passes = passes, B = B)
+            #print('MAGS ' + str(abs(b_x)*ufactor) + ', ' + str(speed/100))
+            passes -= 1
+            #print('STPE SIZE' + str(curu) + ', PARTICLE POSITION: ' + str(B) + ', PASS: ' + str(-passes))
+            #return np.concatenate(np.array(B),newrunpass(passes = passes, B = B, maxstep = curu * 32))
+            return newrunpass(passes = passes, B = B, maxstep = curu * 32)
     else:
         passes -= 1
-        print('PASSES LEFT ' + str(passes))
-        return newrunpass(passes = passes, B = B)
+        #print('PASSES LEFT ' + str(passes))
+        #return np.concatenate(np.array(B),newrunpass(passes = passes, B = B, maxstep = curu * 32))
+        return newrunpass(passes = passes, B = B, maxstep = curu * 32)
     
 
 
@@ -364,9 +394,11 @@ def runpass(passes = 20, Bdelta = .0001, setBstart = None, setSpeed = None, seta
     #testMatrices(Mset0[0], Mset0[1], Mset0[2])
     if passes == 1:
         print('FINISHED' + str(B))
+        print(abs(b_x) * ufactor)
         return Mset0, B
     elif passes < 0:
         if abs(b_x) < setSpeed/100 or passes <= -300:
+            print(abs(b_x) * ufactor)
             return Mset0, B
         else:
             # print('MAGNITUDE: ' + str(abs(b_x)/(setSpeed/100)))
@@ -454,6 +486,7 @@ def testQuadTraces(P,Q,R):
         return False
 
     #return a, b, (c**2-4*a*b)
+
 def testrunpass(setBstart = None, setSpeed = None, seta = None, setEpsilon = None, setDelta = None, movement_min = None):
     global B, bees, speed, a, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
