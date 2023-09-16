@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from main import newrunpass, runpass
+from main import newrunpass, runpass, boltzmannRunpass
 import multiprocessing as mp
 import time
 
@@ -16,7 +16,8 @@ import time
 #     print(B)
 #     print(complex(i))
 starttime = time.time()
-MSet,B = newrunpass(passes=-1, setBstart= 20, setSpeed=0.001, setGamma = 0.5, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
+MSet, B = boltzmannRunpass(passes=-1, setBstart= 20, setSpeed=0.001, setGamma = 0.5, setEpsilon = 0.125, setDelta=0.50)
+#MSet,B = newrunpass(passes=-1, setBstart= 5 - 1j, setSpeed=0.001, setGamma = 0.5, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 #MSet,B = runpass(passes=30, setBstart= 5-1j, setSpeed=0.0001, setEpsilon = 0.125, setDelta=0.50) # Computes the eigenvalue and writes it to the file
 
 endtime = time.time()
