@@ -13,11 +13,11 @@ delta = 0.5
 epsilon = 0.5
 
 points = []
-size = 50
-res = 4
-for real in range(-size,size+1):
-    for imag in range(-size,size+1):
-        points.append(complex(real/res, imag/res))
+# size = 50
+# res = 4
+# for real in range(-size,size+1):
+#     for imag in range(-size,size+1):
+#         points.append(complex(real/res, imag/res))
 
 def mapfunct(st): #GETS THE GRADIENT
     if not os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
@@ -72,7 +72,9 @@ def getEnergyMap(size, res, num_cores = None, setGamma = 0.5, setEpsilon = 0.5, 
         epsilon = setEpsilon
     if setDelta != None:
         delta = setDelta
-    for real in range(-size,size+1):
+    ### IMPORTANT CHANGE HERE ###
+    # for real in range(-size,size+1):
+    for real in range(-size, 0):
         for imag in range(-size,size+1):
             points.append(complex(real/res, imag/res))
     processes = []
@@ -89,11 +91,12 @@ def getEnergyMap(size, res, num_cores = None, setGamma = 0.5, setEpsilon = 0.5, 
         #     process.join()
         with mp.Pool(cores) as p:
             p.map(energfunct,points)
+
 def convert(size, res, name_mod):
     data_out = open("./Data/ENERGYDATA"+str(size)+"_"+name_mod+".csv", "w") # Opens the output file to write to
     for imag in reversed(range(-size,size+1)):
-        for real in range(0,size+1):
-            print('Looking for: ' + 'Output/' + str(real/res) + '_' + str(imag/res) + '.txt')
+        for real in range(-size,size+1):
+            print('Looking for: ' + 'NewOutput/' + str(real/res) + '_' + str(imag/res) + '.txt')
             with open('Output/' + str(real/res) + '_' + str(imag/res) + '.txt', 'r') as f:
                 l = f.readline()
                 print(l)
@@ -107,5 +110,11 @@ def convert(size, res, name_mod):
         for real in range(-size,size+1):
             os.remove('Output/' + str(real/res) + '_' + str(imag/res) + '.txt')
 
-getEnergyMap(250,10)
-#convert(100,4,'FULLENERGY(.5,.5,.5)VALUES')
+
+#getEnergyMap(250,10)
+# convert(250,10,'FULLENERGY_HIGHRES(.5,.5,.5)VALUES')
+size=  250
+res = 10
+for real in range(-size, 0):
+    for imag in range(-size,size+1):
+        os.remove('Output/' + str(real/res) + '_' + str(imag/res) + '.txt')

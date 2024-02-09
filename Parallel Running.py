@@ -15,8 +15,7 @@ def funct(st):
         f.close()
     
 
-# funct(complex(0,0))
-
+# funct(complex(0,0)
 def newfunct(st):
     if not os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
         Mset, B = newrunpass(passes = -1, setBstart = st, setSpeed = .0005, setGamma = 0.5, setEpsilon = 0.5, setDelta = 0.5)
