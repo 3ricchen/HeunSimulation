@@ -92,7 +92,7 @@ def getEnergyMap(size, res, num_cores = None, setGamma = 0.5, setEpsilon = 0.5, 
 def convert(size, res, name_mod):
     data_out = open("./Data/ENERGYDATA"+str(size)+"_"+name_mod+".csv", "w") # Opens the output file to write to
     for imag in reversed(range(-size,size+1)):
-        for real in range(-size,size+1):
+        for real in range(0,size+1):
             print('Looking for: ' + 'Output/' + str(real/res) + '_' + str(imag/res) + '.txt')
             with open('Output/' + str(real/res) + '_' + str(imag/res) + '.txt', 'r') as f:
                 l = f.readline()
@@ -107,5 +107,5 @@ def convert(size, res, name_mod):
         for real in range(-size,size+1):
             os.remove('Output/' + str(real/res) + '_' + str(imag/res) + '.txt')
 
-getEnergyMap(100,4)
+getEnergyMap(250,10)
 #convert(100,4,'FULLENERGY(.5,.5,.5)VALUES')

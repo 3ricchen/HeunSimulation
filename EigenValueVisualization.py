@@ -52,7 +52,7 @@ def eigvis(filename, res=10, half=100, axis=True):
             index += 1
         data.append(out)
     width = 0
-    while width < 810:  # Sets the pixel width to make the screen just larger than 600 pixels
+    while width < 800:  # Sets the pixel width to make the screen just larger than 600 pixels
         width += len(data)
     screen = pygame.display.set_mode((width, width))
     screen.fill((255, 255, 255))
@@ -61,53 +61,59 @@ def eigvis(filename, res=10, half=100, axis=True):
         y = 0
         for cord in line:
             try:
+                print(cord)
                 sqt = sqrt(float(cord[0]), float(cord[1]))
-                print("sqt")
                 sqtpix = sqrt(x-len(data)//2,len(data)//2-y)
-                real_pix = x*width//len(data)
-                real_eig = (float(cord[0])*res+half)*width//len(data)
-                imag_eig = (-float(cord[1]) * res + half) * width // len(data)
-                imag_pix = (len(data)-1-y)*width//len(data)
-                mag = math.sqrt(float(cord[0])**2 + float(cord[1])**2)
+                # real_pix = x*width//len(data)
+                # real_eig = (float(cord[0])*res+half)*width//len(data)
+                # imag_eig = (-float(cord[1]) * res + half) * width // len(data)
+                # imag_pix = (len(data)-1-y)*width//len(data)
+                # mag = math.sqrt(float(cord[0])**2 + float(cord[1])**2)
                 # Square Root Image Transform
-                # real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                # imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
-                # mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
-                # mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
-                # real_eig = (sqt[0] * res + half) * width // len(data)
-                # imag_eig = (-sqt[1] * res + half) * width // len(data)
-                # mag = math.sqrt(sqt[0] ** 2 + sqt[1] ** 2)
-                # normd = [float(cord[0])/mag, 0, float(cord[1])/mag]
-                # weight = 2*math.atan(mag/10)/math.pi
-                # print(sqt)
+                real_pix = sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                imag_pix = (int(math.sqrt(len(data))) - 1 - sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                mreal_pix = -sqtpix[0] * width // (2*math.sqrt(len(data))) + width//2
+                mimag_pix = (int(math.sqrt(len(data))) - 1 + sqtpix[1]) * width // (2*math.sqrt(len(data)))
+                real_eig = (sqt[0] * res + half) * width // len(data)
+                imag_eig = (-sqt[1] * res + half) * width // len(data)
+                mag = math.sqrt(sqt[0] ** 2 + sqt[1] ** 2)
+                normd = [float(cord[0])/mag, 0, float(cord[1])/mag]
+                weight = 2*math.atan(mag/10)/math.pi
+                # print("sqt")
 
                 # Uncomment this for a red/blue coloring
                 #pygame.draw.rect(screen, (int(normd[0]*weight*127 + 127),weight*64,int(normd[2]*weight*127 + 127)), [real_pix, imag_pix, width//len(data), width//len(data)])
-                #color = pygame.Color(0)
+                color = pygame.Color(0)
                 shift = lambda x: x + 360*(x<0)
-                print("draw")
-                color.hsla = (shift(int(cmath.polar(complex(float(cord[0]),float(cord[1])))[1]*180/math.pi)),70,int(weight*100),100)
-                
+                print(int(cmath.polar(complex(float(cord[0]),float(cord[1])))[0]))
+                color.hsla = (shift(int(cmath.polar(complex(float(cord[0]),float(cord[1])))[1]*180/math.pi)),70,int(cmath.polar(complex(float(cord[0]),float(cord[1])))[0]),100)
+                print([color.r,color.g,color.b])
                 #Uncomment this for a HSV coloring
-                # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
-                # # if abs(sqtpix[0] - int(sqtpix[0])) < 0.01 and abs(sqtpix[1] - int(sqtpix[1]/np.pi)) < 0.01:
-                #     black = pygame.Color(0,0,0)
-                #     pygame.draw.rect(screen, black, [real_pix, imag_pix, width//len(data), width//len(data)])
-                # else:
-                #     pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
-    
-                # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
-                #     black = pygame.Color(0,0,0)
-                #     pygame.draw.rect(screen, black, [mreal_pix, mimag_pix, width//len(data), width//len(data)])
-                # else:
-                #     pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
+                print("Colored")
+                if False:
+                 # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
+                 # if abs(sqtpix[0] - int(sqtpix[0])) < 0.01 and abs(sqtpix[1] - int(sqtpix[1]/np.pi)) < 0.01:
+                    black = pygame.Color(0,0,0)
+                    pygame.draw.rect(screen, black, [real_pix, imag_pix, width//len(data), width//len(data)])
+                else:
+                    print(real_pix)
+                    print(imag_pix)
+                    pygame.draw.rect(screen, color, [real_pix, imag_pix, width//len(data), width//len(data)])
+                    print("drew")
+
+                 # if abs(sqtpix[0]/np.pi - int(sqtpix[0]/np.pi)) < 0.05 and abs((sqtpix[1])/np.pi - int((sqtpix[1])/np.pi)) < 0.05:
+                if False:
+                    black = pygame.Color(0,0,0)
+                    pygame.draw.rect(screen, black, [mreal_pix, mimag_pix, width//len(data), width//len(data)])
+                else:
+                    pygame.draw.rect(screen, color, [mreal_pix, mimag_pix, width // len(data), width // len(data)])
                     
                 # Uncomment this to display the convergent values in white
-                #pygame.draw.rect(screen, (255,255,255), [real_eig, imag_eig,width//len(data), width//len(data)])
+                # pygame.draw.rect(screen, (255,255,255), [real_eig, imag_eig,width//len(data), width//len(data)])
                 print("done")
             except: # Handles drawing invalid or corrupt data.
                 # Uncomment this when producing either an HSV or red/blue image
-                #pygame.draw.rect(screen, (0,0,0), [real_pix, imag_pix, width//len(data), width//len(data)])
+                # pygame.draw.rect(screen, (0,0,0), [real_pix, imag_pix, width//len(data), width//len(data)])
                 print("fail")
                 pass
             y += 1
@@ -149,22 +155,22 @@ def eigvis(filename, res=10, half=100, axis=True):
                 # For normal predictions
                 # pygame.draw.circle(screen, (235,30,20), [main.makeEigenvalue(m,n).real*res*width//len(data) + width//2,-main.makeEigenvalue(m,n).imag*res*width//len(data) + width//2], (width//len(data))*7, width=width//(2*len(data)))
     if axis:
-        scaling = 5 # Set to 5 if only drawing the square roots of convergence values
-        pygame.draw.line(screen,(0,0,255), start_pos=[width//2+width//len(data)//2,0], end_pos=[width//2+width//len(data)//2,width-1])
-        pygame.draw.line(screen, (0, 0, 255), start_pos=[0,width // 2+width//len(data)//2], end_pos=[width - 1,width // 2+width//len(data)//2])
+        scaling = 5 # Set to 5 if only drawing the square roots of convergence values, 1 otherwise
+        pygame.draw.line(screen,(192,192,192), start_pos=[width//2+width//len(data)//2,0], end_pos=[width//2+width//len(data)//2,width-1])
+        pygame.draw.line(screen, (192, 192, 192), start_pos=[0,width // 2+width//len(data)//2], end_pos=[width - 1,width // 2+width//len(data)//2])
         font18 = pygame.font.Font(pygame.font.get_default_font(),30)
-        screen.blit(font18.render(str(half/2/res/scaling)+"i",False,(0,0,255),None),[width//2+4,width//4-15])
-        screen.blit(font18.render(str(-half /2/res/scaling), False, (0, 0, 255), None),
+        screen.blit(font18.render(str(half/2/res/scaling)+"i",False,(192,192,192),None),[width//2+4,width//4-15])
+        screen.blit(font18.render(str(-half /2/res/scaling), False, (192, 192, 192), None),
                     [width // 4 -20, width // 2 - 30])
-        screen.blit(font18.render(str(-half /2/res/scaling)+"i", False, (0, 0, 255), None),
+        screen.blit(font18.render(str(-half /2/res/scaling)+"i", False, (192, 192, 192), None),
                     [width // 2 + 4, 3*width // 4 -15])
-        screen.blit(font18.render(str(half /2/res/scaling), False, (0, 0, 255), None),
+        screen.blit(font18.render(str(half /2/res/scaling), False, (192, 192, 192), None),
                     [3*width // 4 - 15, width // 2 - 30])
     pygame.display.update()
 
     pygame.image.save(screen, "./" + filename + "hslaE.png") # Change to edit the output filename
 
-eigvis("Data/eigenvaluedata25_eigsLatticeNew(.5,.5,.125)-1", half=25, res=1) # Produces the image for the Lame Equation
+eigvis("Data/eigenvaluedata200_eigsLatticeNewAlg.5.5.5-1", half=200, res=4) # Produces the image for the Lame Equation
 while flag:
     for event in pygame.event.get():
         if event == pygame.QUIT:

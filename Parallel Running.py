@@ -19,7 +19,7 @@ def funct(st):
 
 def newfunct(st):
     if not os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
-        Mset, B = newrunpass(passes = -1, setBstart = st, setSpeed = .001, setGamma = 0.5, setEpsilon = 0.5, setDelta = 0.5)
+        Mset, B = newrunpass(passes = -1, setBstart = st, setSpeed = .0005, setGamma = 0.5, setEpsilon = 0.5, setDelta = 0.5)
         f = open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w')
         f.write("[" + str(B.real) + "," + str(B.imag) + "]")
         print('JUST FINISHED' + str(st.real) + '_' + str(st.imag))
@@ -109,7 +109,7 @@ def convert(name_mod,a,size,res):
                 print(l)
                 data_out.write(l)
             f.close()
-            if imag != size:
+            if real != size:
                 data_out.write(",")
         data_out.write("\n")
     data_out.close()

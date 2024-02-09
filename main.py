@@ -216,8 +216,8 @@ def findTraces(M0, M1, Ma):
 def getNewEnergy(B, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
     Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
     T0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
-    # return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
-    return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
+    return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
+    # return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
 
 def getEnergyGradient(B,Bdelta = .0001, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
     Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
