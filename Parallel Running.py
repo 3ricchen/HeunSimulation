@@ -4,6 +4,8 @@ import numpy as np
 import os
 import time
 
+total = 0
+
 #Runs the runpass function, with a starting guess value of st.
 def funct(st):
     # Mset, B = runpass(passes=passes, setBstart=complex(real / res, imag / res), setSpeed=speed, setEpsilon = 0.125, setDelta=0.50)
@@ -17,11 +19,14 @@ def funct(st):
 
 # funct(complex(0,0)
 def newfunct(st):
+    global total
     if not os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
         Mset, B = newrunpass(passes = -1, setBstart = st, setSpeed = .001, setGamma = 0.5, setEpsilon = 0.5, setDelta = 0.5)
         f = open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w')
         f.write("[" + str(B.real) + "," + str(B.imag) + "]")
         print('JUST FINISHED' + str(st.real) + '_' + str(st.imag))
+        # total += 1
+        print(total)
         f.close()
     
 
@@ -148,7 +153,7 @@ size = 12
 res = 1
 name = 'eigsLatticeNewAlg(.5,.5,.5)'
 
-#newRunParallel(-1, name, size, res, setEpsilon = 0.5, setDelta = 0.5)
+newRunParallel(-1, name, size, res, setEpsilon = 0.5, setDelta = 0.5)
 
 # while count < (2*size+1)**2:
 #     count=0
@@ -159,7 +164,9 @@ name = 'eigsLatticeNewAlg(.5,.5,.5)'
 #     time.sleep(60)
 
 #testParallel(-1, name, size, res)
-convert(name,-1, size, res)
+
+#convert(name,-1, size, res)
+
 #convertTrue(name, -1, size, res)
 
 #get_data(-1, name_mod="TESTING",res=4, size=4)

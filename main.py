@@ -219,8 +219,24 @@ def getNewEnergy(B, setGamma = None, setDelta = None, setEpsilon = None, seta = 
 
     #return np.arctan((T0[0].imag)**2) + np.arctan((T0[1].imag)**2) + np.arctan((T0[2].imag)**2)
     #return np.log((T0[0].imag)**2 * (T0[1].imag)**2 * (T0[2].imag)**2)
-    #return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
-    return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
+    return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
+    #return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
+
+def getAdaptiveEnergy(B, combine = True, max0 = None, max1 = None, max2 = None, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
+    Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
+    T0 = findTraces(Mats[0],Mats[1],Mats[2]) # [t12(B0), t23(B0)]
+
+    
+    if (max0 == None or max1 == None or max2 == None):
+        #return np.arctan((T0[0].imag)**2) + np.arctan((T0[1].imag)**2) + np.arctan((T0[2].imag)**2)
+        #return np.log((T0[0].imag)**2 * (T0[1].imag)**2 * (T0[2].imag)**2)
+        if combine:
+            return (T0[0].imag)**2 + (T0[1].imag)**2 + (T0[2].imag)**2
+        return (T0[0].imag)**2, (T0[1].imag)**2, (T0[2].imag)**2
+        #return (T0[0].imag)**2+ (T0[1].imag)**2+ (T0[2].imag)**2
+    if combine:
+        return (T0[0].imag/max0)**2 + (T0[1].imag/max1)**2 + (T0[2].imag/max2)**2
+    return (T0[0].imag/max0)**2, (T0[1].imag/max1)**2, (T0[2].imag/max2)**2
 
 def getEnergyGradient(B,Bdelta = .0001, setGamma = None, setDelta = None, setEpsilon = None, seta = None):
     Mats = findMatrices(B, setGamma = setGamma, setDelta = setDelta, setEpsilon = setEpsilon, seta = seta)
@@ -234,7 +250,7 @@ def getEnergyGradient(B,Bdelta = .0001, setGamma = None, setDelta = None, setEps
     #return 2 * ((1 / Tset0[0].imag) * dt12.conjugate()*1j + (1 / Tset0[1].imag) * dt23.conjugate()*1j + (1 / Tset0[2].imag) * dt13.conjugate()*1j)
     #return 2 * ((Tset0[0].imag / (1+Tset0[0].imag**4)) * dt12.conjugate()*1j + (Tset0[1].imag / (1+Tset0[1].imag**4)) * dt23.conjugate()*1j + (Tset0[2].imag / (1+Tset0[2].imag**4)) * dt13.conjugate()*1j)
 
-def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
+def newrunpass(passes = 20, Bdelta = .0001, max0 = None, max1 = None, max2 = None, maxstep = None, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
     global bees, speed, a, gamma, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
         B = setBstart
@@ -254,8 +270,8 @@ def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, se
 
     B0 = B
 
-    energy0 = getNewEnergy(B0)
-    
+    max0, max1, max2 = getAdaptiveEnergy(B0, combine = False)
+    energy0 = getAdaptiveEnergy(B0, combine = True, max0 = max0, max1 = max1, max2 = max2)
 
     b_x = getEnergyGradient(B, Bdelta=Bdelta)
     
@@ -276,7 +292,8 @@ def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, se
     curu = (minu + maxu)/2
     #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
     B = B0 + curu * searchdir
-    energy1 = getNewEnergy(B)
+    energy1 = getAdaptiveEnergy(B, combine = True, max0 = max0, max1 = max1, max2 = max2)
+
 
     ###########################################
     ## SELECT WHICH GRADIENT FUNCTION TO USE ##
@@ -292,7 +309,7 @@ def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, se
             curu = (minu + maxu)/2
             #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
             B = B0 + curu * searchdir
-            energy1 = getNewEnergy(B)
+            energy1 = getAdaptiveEnergy(B, combine = True, max0 = max0, max1 = max1, max2 = max2)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
         else:
             #print('COND2')
@@ -300,32 +317,32 @@ def newrunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, se
             curu = (minu + maxu)/2
             #print('MIN AND MAX ' + str(minu) + ' ' + str(maxu))
             B = B0 + curu * searchdir
-            energy1 = getNewEnergy(B)
+            energy1 = getAdaptiveEnergy(B, combine = True, max0 = max0, max1 = max1, max2 = max2)
             b_x2 = getEnergyGradient(B, Bdelta=Bdelta)
     #print('WOLFE, step: ' + str(abs(b_x)* ufactor) + ', count: ' + str(count) + ', B: ' + str(B) + ', BX: ' + str(b_x) + ', Energy: ' + str(getNewEnergy(B)))
     
     if passes == 1:
-        print('FINISHED' + str(B))
+        # print('FINISHED' + str(B))
         return findMatrices(B), B
         #return B
     elif passes <0:
         if curu < speed/100 or passes == -200:
         #if curu < speed/100:
-            print('FINISHED' + str(B))
+            # print('FINISHED' + str(B))
             return findMatrices(B), B
             #return np.array(B)
         else:
             #print('MAGS ' + str(abs(b_x)*ufactor) + ', ' + str(speed/100))
             passes -= 1
-            print('STPE SIZE' + str(curu) + ', PARTICLE POSITION: ' + str(B) + ', PASS: ' + str(-passes))
+            # print('STPE SIZE' + str(curu) + ', PARTICLE POSITION: ' + str(B) + ', PASS: ' + str(-passes))
             #return np.concatenate(np.array(B),newrunpass(passes = passes, B = B, maxstep = curu * 32))
-            return newrunpass(passes = passes, B = B, maxstep = curu * 32)
+            return newrunpass(passes = passes, B = B, max0 = max0, max1 = max1, max2= max2, maxstep = curu * 32)
     else:
         passes -= 1
         #print('PASSES LEFT ' + str(passes))
         #return np.concatenate(np.array(B),newrunpass(passes = passes, B = B, maxstep = curu * 32))
-        return newrunpass(passes = passes, B = B, maxstep = curu * 32)
-    
+        return newrunpass(passes = passes, B = B, max0 = max0, max1 = max1, max2= max2, maxstep = curu * 32)
+
 def boltzmannRunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = None, setSpeed = None, seta = None, setGamma = None, setEpsilon = None, setDelta = None, movement_min = None, B = B_init):
     global bees, speed, a, gamma, epsilon, delta
     if setBstart != None: # To allow external control of setting the B parameter
@@ -385,7 +402,6 @@ def boltzmannRunpass(passes = 20, Bdelta = .0001, maxstep = None, setBstart = No
         print('BVAL: ' + str(B) + ', ENERGY: ' + str(energy0) + ', TEMP: ' + str(T))
     return findMatrices(B), B
     
-
 
     
 
@@ -550,6 +566,14 @@ def testQuadTraces(P,Q,R):
 
     a = tau**2 + q**2 + p**2 - 2 * p * tau * q - 4
     b = sigma**2 + r**2 + p**2 - 2 * p * sigma * r - 4
+    _, S = np.eig(P0)
+    
+    S = S.T
+
+    P0 = S @ P0 @ np.linalg.inv(S)
+    Q0 = S @ Q0 @ np.linalg.inv(S)
+    R0 = S @ R0 @ np.linalg.inv(S)
+
     c = P0[0,1] * R0[1,0] + P0[1,0] * R0[0,1]
 
     if a >= 0 and b >= 0 and (c**2-4*a*b) <= 0:
