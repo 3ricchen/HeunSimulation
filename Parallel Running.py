@@ -4,17 +4,20 @@ import numpy as np
 import os
 import time
 
+### MAKE SURE TO CHANGE THE PARAMETER VALUES HERE!!! ###
 #Runs the runpass function, with a starting guess value of st.
 def funct(st):
+    # Have this on in case we're going to be repeating computations.
+    if os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
+        return
     Mset, B = runpass(passes = 20, setBstart = st, setSpeed = .001, setEpsilon = 0.125, setDelta = 0.50)
     # Mset, B = runpass(passes=passes, setBstart=complex(real / res, imag / res), setSpeed=speed, setEpsilon = 0.125, setDelta=0.50)
     
-    f = open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w')
-    
-    f.write("[" + str(B.real) + "," + str(B.imag) + "]")
-    
-    print('JUST FINISHED' + str(st.real) + '_' + str(st.imag))
-    f.close()
+    with open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w') as f:
+    # with open('Output/hello.txt','w') as f:
+        f.write("[" + str(B.real) + "," + str(B.imag) + "]")
+        # f.write("Hello")
+        print('JUST FINISHED ' + str(st.real) + '_' + str(st.imag))
 
 # funct(complex(0,0))
 
@@ -68,19 +71,12 @@ def convert(name_mod,a,size,res):
 ######################################
 # SET SIZE AND RESOLUTION PARAMETERS #
 ######################################
-size = 75
+size = 100
 res = 4
 
-runParallel(-1, 'eigvalsH(.5,.5,.375)', size, res, setEpsilon = 0.375, setDelta = 0.5)
+runParallel(-1, 'eigvalsH(.5,.5,.5)', size, res, setEpsilon = 0.125, setDelta = 0.5)
 
-while count < (2*size+1)**2:
-    count=0
-    l = os.listdir('Output')
-    for thing in l:
-        if os.path.isfile(thing):
-            count = count+1
-    time.sleep(60)
-convert('eigvalsH(.5,.5,.375)',-1, size, res)
+# convert('FIXEDFINAL_eigvalsH(.5,.5,.5)',-1, size, res)
 
 
 #get_data(-1, name_mod="TESTING",res=4, size=4)

@@ -19,7 +19,7 @@ beta = alpha
 
 radius = .4
 time = 0
-speed = .00005
+speed = .001
 deltax = complex(0,0)
 
 d2y = complex(0,0) # y''
