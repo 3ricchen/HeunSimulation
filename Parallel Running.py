@@ -10,7 +10,7 @@ def funct(st):
     # Have this on in case we're going to be repeating computations.
     if os.path.isfile('Output/' + str(st.real) + '_' + str(st.imag) + '.txt'):
         return
-    Mset, B = runpass(passes = 20, setBstart = st, setSpeed = .001, setEpsilon = 0.125, setDelta = 0.50)
+    Mset, B = runpass(passes = 20, setBstart = st, setSpeed = .001, setEpsilon = 0.375, setDelta = 0.50)
     # Mset, B = runpass(passes=passes, setBstart=complex(real / res, imag / res), setSpeed=speed, setEpsilon = 0.125, setDelta=0.50)
     
     with open('Output/' + str(st.real) + '_' + str(st.imag) + '.txt','w') as f:
@@ -74,9 +74,9 @@ def convert(name_mod,a,size,res):
 size = 100
 res = 4
 
-# runParallel(-1, 'eigvalsH(.5,.5,.5)', size, res, setEpsilon = 0.125, setDelta = 0.5)
+# runParallel(-1, 'eigvalsH(.5,.5,.375)', size, res, setEpsilon = 0.375, setDelta = 0.5)
 
-convert('FIXEDFINAL_eigvalsH(.5,.5,.125)',-1, size, res)
+convert('FIXEDFINAL_eigvalsH(.5,.5,.375)',-1, size, res)
 
 
 #get_data(-1, name_mod="TESTING",res=4, size=4)
